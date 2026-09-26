@@ -613,3 +613,4 @@ async function startApp() {
 
 
 startApp();
+console.log("🔥 НОВАЯ ВЕРСИЯ APP.JS ЗАГРУЖЕНА");
