@@ -1,3 +1,4 @@
+alert("НОВЫЙ APP.JS ЗАГРУЖЕН");
 const tg = window.Telegram.WebApp;
 
 tg.ready();
