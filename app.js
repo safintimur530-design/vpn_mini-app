@@ -1,25 +1,321 @@
 ```javascript
 "use strict";
 
-window.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("DOMContentLoaded", () => {
 
-    alert("APP.JS РАБОТАЕТ");
+    // =========================
+    // TELEGRAM
+    // =========================
 
-    const plansButton = document.getElementById("plansButton");
+    const tg = window.Telegram?.WebApp || null;
+
+    if (tg) {
+        tg.ready();
+        tg.expand();
+    }
+
+    function showMessage(text) {
+        if (tg && typeof tg.showAlert === "function") {
+            tg.showAlert(text);
+        } else {
+            alert(text);
+        }
+    }
+
+
+    // =========================
+    // ELEMENTS
+    // =========================
+
     const connectButton = document.getElementById("connectButton");
+    const plansButton = document.getElementById("plansButton");
+    const devicesButton = document.getElementById("devicesButton");
+    const referralsButton = document.getElementById("referralsButton");
+    const promoButton = document.getElementById("promoButton");
 
-    if (plansButton) {
-        plansButton.addEventListener("click", function () {
-            alert("КНОПКА ПОДПИСКА РАБОТАЕТ");
-        });
+    const profileButton = document.getElementById("profileButton");
+
+    const plansNavButton = document.getElementById("plansNavButton");
+    const profileNavButton = document.getElementById("profileNavButton");
+
+    const serverSelect = document.getElementById("serverSelect");
+
+    const statusCircle = document.getElementById("statusCircle");
+    const statusTitle = document.getElementById("statusTitle");
+    const statusSubtitle = document.getElementById("statusSubtitle");
+    const statusSmall = document.getElementById("statusSmall");
+    const statusDot = document.getElementById("statusDot");
+
+
+    // =========================
+    // CHECK
+    // =========================
+
+    if (!connectButton) {
+        alert("ОШИБКА: connectButton не найден");
+        return;
     }
 
-    if (connectButton) {
-        connectButton.addEventListener("click", function () {
-            alert("КНОПКА VPN РАБОТАЕТ");
-        });
+
+    // =========================
+    // VPN
+    // =========================
+
+    let connected = false;
+
+    connectButton.addEventListener("click", () => {
+
+        connected = !connected;
+
+        if (connected) {
+
+            statusCircle?.classList.add("connected");
+            connectButton.classList.add("connected");
+
+            connectButton.textContent = "ОТКЛЮЧИТЬ";
+
+            if (statusTitle) {
+                statusTitle.textContent = "VPN подключён";
+            }
+
+            if (statusSubtitle) {
+                statusSubtitle.textContent =
+                    "Соединение защищено";
+            }
+
+            if (statusSmall) {
+                statusSmall.textContent =
+                    "Подключено";
+            }
+
+            if (statusDot) {
+                statusDot.style.background =
+                    "#35d07f";
+            }
+
+        } else {
+
+            statusCircle?.classList.remove("connected");
+            connectButton.classList.remove("connected");
+
+            connectButton.textContent =
+                "ПОДКЛЮЧИТЬ";
+
+            if (statusTitle) {
+                statusTitle.textContent =
+                    "VPN отключён";
+            }
+
+            if (statusSubtitle) {
+                statusSubtitle.textContent =
+                    "Твой интернет не защищён";
+            }
+
+            if (statusSmall) {
+                statusSmall.textContent =
+                    "Не подключено";
+            }
+
+            if (statusDot) {
+                statusDot.style.background =
+                    "#657080";
+            }
+        }
+
+    });
+
+
+    // =========================
+    // SUBSCRIPTION
+    // =========================
+
+    function openPlans() {
+
+        showMessage(
+            "💳 ТАРИФЫ\n\n" +
+            "7 дней — 199 ₽\n" +
+            "30 дней — 499 ₽\n" +
+            "90 дней — 1199 ₽"
+        );
+
     }
+
+
+    // =========================
+    // PROFILE
+    // =========================
+
+    function openProfile() {
+
+        const user =
+            tg?.initDataUnsafe?.user;
+
+        if (!user) {
+
+            showMessage(
+                "👤 ПРОФИЛЬ\n\n" +
+                "Telegram не передал данные пользователя."
+            );
+
+            return;
+        }
+
+        const name =
+            user.first_name || "Пользователь";
+
+        const username =
+            user.username
+                ? "@" + user.username
+                : "—";
+
+        showMessage(
+            "👤 ПРОФИЛЬ\n\n" +
+            "Имя: " + name +
+            "\n\n" +
+            "Username: " + username +
+            "\n\n" +
+            "ID: " + user.id
+        );
+
+    }
+
+
+    // =========================
+    // DEVICES
+    // =========================
+
+    function openDevices() {
+
+        showMessage(
+            "📱 УСТРОЙСТВА\n\n" +
+            "Подключено: 0 / 3"
+        );
+
+    }
+
+
+    // =========================
+    // REFERRALS
+    // =========================
+
+    function openReferrals() {
+
+        showMessage(
+            "🎁 РЕФЕРАЛЫ\n\n" +
+            "Приглашай друзей и получай скидку."
+        );
+
+    }
+
+
+    // =========================
+    // PROMO
+    // =========================
+
+    function openPromo() {
+
+        showMessage(
+            "🎟 ПРОМОКОД\n\n" +
+            "Функция будет доступна на следующем этапе."
+        );
+
+    }
+
+
+    // =========================
+    // SERVERS
+    // =========================
+
+    serverSelect?.addEventListener("change", () => {
+
+        const serverName =
+            document.getElementById("serverName");
+
+        const serverPing =
+            document.getElementById("serverPing");
+
+        if (!serverName || !serverPing) {
+            return;
+        }
+
+        if (serverSelect.value === "germany") {
+
+            serverName.textContent =
+                "🇩🇪 Германия";
+
+            serverPing.textContent =
+                "38 ms";
+
+        }
+
+        if (serverSelect.value === "netherlands") {
+
+            serverName.textContent =
+                "🇳🇱 Нидерланды";
+
+            serverPing.textContent =
+                "42 ms";
+
+        }
+
+        if (serverSelect.value === "finland") {
+
+            serverName.textContent =
+                "🇫🇮 Финляндия";
+
+            serverPing.textContent =
+                "51 ms";
+
+        }
+
+    });
+
+
+    // =========================
+    // BUTTONS
+    // =========================
+
+    plansButton?.addEventListener(
+        "click",
+        openPlans
+    );
+
+    devicesButton?.addEventListener(
+        "click",
+        openDevices
+    );
+
+    referralsButton?.addEventListener(
+        "click",
+        openReferrals
+    );
+
+    promoButton?.addEventListener(
+        "click",
+        openPromo
+    );
+
+    profileButton?.addEventListener(
+        "click",
+        openProfile
+    );
+
+    plansNavButton?.addEventListener(
+        "click",
+        openPlans
+    );
+
+    profileNavButton?.addEventListener(
+        "click",
+        openProfile
+    );
+
+
+    // =========================
+    // READY
+    // =========================
+
+    console.log("VPN APP: READY");
 
 });
 ```
-
