@@ -1,18 +1,277 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>VPN Service</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 
 <body>
 
-    <h1>VPN SERVICE</h1>
+<div class="app">
 
-    <button onclick="alert('Кнопка работает!')">
-        ПОДКЛЮЧИТЬ VPN
-    </button>
+    <header class="header">
+
+        <div>
+            <div class="logo">VPN</div>
+            <div class="subtitle">Secure connection</div>
+        </div>
+
+        <button
+            class="profile-button"
+            onclick="openProfile()"
+        >
+            👤
+        </button>
+
+    </header>
+
+
+    <main>
+
+        <!-- VPN -->
+
+        <section class="status-card">
+
+            <div
+                class="status-circle"
+                id="statusCircle"
+            >
+                <div class="power">⏻</div>
+            </div>
+
+            <div
+                class="status-title"
+                id="statusTitle"
+            >
+                VPN отключён
+            </div>
+
+            <div
+                class="status-subtitle"
+                id="statusSubtitle"
+            >
+                Нажми, чтобы подключиться
+            </div>
+
+            <button
+                class="connect-button"
+                onclick="connectVPN()"
+            >
+                ПОДКЛЮЧИТЬ
+            </button>
+
+        </section>
+
+
+        <!-- SERVER -->
+
+        <section class="server-card">
+
+            <div class="server-top">
+
+                <div>
+
+                    <div class="server-title">
+                        Сервер
+                    </div>
+
+                    <div
+                        class="server-name"
+                        id="serverName"
+                    >
+                        🇩🇪 Германия
+                    </div>
+
+                </div>
+
+                <div
+                    class="server-ping"
+                    id="serverPing"
+                >
+                    38 ms
+                </div>
+
+            </div>
+
+            <select
+                class="server-select"
+                id="serverSelect"
+                onchange="changeServer()"
+            >
+
+                <option value="germany">
+                    🇩🇪 Германия
+                </option>
+
+                <option value="netherlands">
+                    🇳🇱 Нидерланды
+                </option>
+
+                <option value="finland">
+                    🇫🇮 Финляндия
+                </option>
+
+            </select>
+
+        </section>
+
+
+        <!-- INFO -->
+
+        <section class="info-card">
+
+            <div class="info-item">
+                <span>Подписка</span>
+                <strong>Не активна</strong>
+            </div>
+
+            <div class="info-item">
+                <span>Устройства</span>
+                <strong>0 / 3</strong>
+            </div>
+
+            <div class="info-item">
+                <span>Статус</span>
+                <strong>Безопасно</strong>
+            </div>
+
+        </section>
+
+
+        <!-- SPEED -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+
+                <span>↓ Download</span>
+
+                <strong>0 Mbps</strong>
+
+            </div>
+
+            <div class="stat-card">
+
+                <span>↑ Upload</span>
+
+                <strong>0 Mbps</strong>
+
+            </div>
+
+        </section>
+
+
+        <h2 class="section-title">
+            Быстрый доступ
+        </h2>
+
+
+        <!-- MENU -->
+
+        <div class="menu-grid">
+
+            <button onclick="openPlans()">
+                <span>💳</span>
+                <small>Подписка</small>
+            </button>
+
+            <button onclick="openDevices()">
+                <span>📱</span>
+                <small>Устройства</small>
+            </button>
+
+            <button onclick="openReferrals()">
+                <span>🎁</span>
+                <small>Рефералы</small>
+            </button>
+
+            <button onclick="openPromo()">
+                <span>🎟</span>
+                <small>Промокод</small>
+            </button>
+
+        </div>
+
+
+        <!-- REFERRAL -->
+
+        <section class="ref-card">
+
+            <div class="ref-icon">
+                🎁
+            </div>
+
+            <div class="ref-content">
+
+                <strong>
+                    Приглашай друзей
+                </strong>
+
+                <p>
+                    За каждого приглашённого
+                    пользователя получаешь +2% скидки.
+                </p>
+
+                <div class="discount">
+                    Твоя скидка:
+                    <b>0%</b>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- NAVIGATION -->
+
+    <nav class="bottom-nav">
+
+        <button class="active">
+
+            <span>🏠</span>
+
+            Главная
+
+        </button>
+
+
+        <button onclick="openPlans()">
+
+            <span>💳</span>
+
+            Тарифы
+
+        </button>
+
+
+        <button onclick="openProfile()">
+
+            <span>👤</span>
+
+            Профиль
+
+        </button>
+
+    </nav>
+
+</div>
+
+
+<script src="app.js"></script>
 
 </body>
+
 </html>
