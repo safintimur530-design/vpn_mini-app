@@ -1,161 +1,20 @@
 ```javascript
 "use strict";
 
-
-// ========================================
-// TELEGRAM
-// ========================================
-
 const tg = window.Telegram.WebApp;
 
 tg.ready();
 tg.expand();
 
-
-// ========================================
-// API
-// ========================================
-
 const API_BASE =
     "https://filters-jesse-occupied-potato.trycloudflare.com";
 
-const initData =
-    tg.initData || "";
-
-
-// ========================================
-// ДАННЫЕ
-// ========================================
-
 let connected = false;
-let userData = null;
 
 
-// ========================================
-// API REQUEST
-// ========================================
-
-async function apiRequest(endpoint, options = {}) {
-
-    const requestOptions = {
-
-        method: options.method || "GET",
-
-        headers: {
-            "Content-Type": "application/json",
-            "X-Telegram-Init-Data": initData
-        }
-
-    };
-
-
-    if (options.body) {
-
-        requestOptions.body =
-            JSON.stringify(options.body);
-    }
-
-
-    const response =
-        await fetch(
-            API_BASE + endpoint,
-            requestOptions
-        );
-
-
-    const data =
-        await response.json();
-
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.error ||
-            data.message ||
-            `Ошибка ${response.status}`
-        );
-    }
-
-
-    return data;
-}
-
-
-// ========================================
+// ==============================
 // VPN
-// ========================================
-
-function updateVPN() {
-
-    const circle =
-        document.getElementById("statusCircle");
-
-    const title =
-        document.getElementById("statusTitle");
-
-    const subtitle =
-        document.getElementById("statusSubtitle");
-
-    const button =
-        document.getElementById("connectButton");
-
-    const dot =
-        document.getElementById("statusDot");
-
-    const small =
-        document.getElementById("statusSmall");
-
-
-    if (connected) {
-
-        circle.classList.add("connected");
-
-        button.classList.add("connected");
-
-        button.textContent =
-            "ОТКЛЮЧИТЬ";
-
-        title.textContent =
-            "VPN подключён";
-
-        subtitle.textContent =
-            "Соединение защищено";
-
-        small.textContent =
-            "Подключено";
-
-        dot.style.background =
-            "#35d07f";
-
-        dot.style.boxShadow =
-            "0 0 10px rgba(53,208,127,0.7)";
-
-    } else {
-
-        circle.classList.remove("connected");
-
-        button.classList.remove("connected");
-
-        button.textContent =
-            "ПОДКЛЮЧИТЬ";
-
-        title.textContent =
-            "VPN отключён";
-
-        subtitle.textContent =
-            "Твой интернет не защищён";
-
-        small.textContent =
-            "Не подключено";
-
-        dot.style.background =
-            "#657080";
-
-        dot.style.boxShadow =
-            "none";
-    }
-}
-
+// ==============================
 
 function connectVPN() {
 
@@ -163,196 +22,171 @@ function connectVPN() {
 
         connected = false;
 
-        updateVPN();
+        document
+            .getElementById("statusCircle")
+            .classList.remove("connected");
+
+        document
+            .getElementById("connectButton")
+            .classList.remove("connected");
+
+        document
+            .getElementById("connectButton")
+            .textContent = "ПОДКЛЮЧИТЬ";
+
+        document
+            .getElementById("statusTitle")
+            .textContent = "VPN отключён";
+
+        document
+            .getElementById("statusSubtitle")
+            .textContent = "Твой интернет не защищён";
+
+        document
+            .getElementById("statusSmall")
+            .textContent = "Не подключено";
+
+        document
+            .getElementById("statusDot")
+            .style.background = "#657080";
 
         return;
     }
 
 
-    tg.showConfirm(
-        "Подключить VPN?",
-        function (confirmed) {
+    connected = true;
 
-            if (!confirmed) return;
+    document
+        .getElementById("statusCircle")
+        .classList.add("connected");
 
-            connected = true;
+    document
+        .getElementById("connectButton")
+        .classList.add("connected");
 
-            updateVPN();
-        }
-    );
+    document
+        .getElementById("connectButton")
+        .textContent = "ОТКЛЮЧИТЬ";
+
+    document
+        .getElementById("statusTitle")
+        .textContent = "VPN подключён";
+
+    document
+        .getElementById("statusSubtitle")
+        .textContent = "Соединение защищено";
+
+    document
+        .getElementById("statusSmall")
+        .textContent = "Подключено";
+
+    document
+        .getElementById("statusDot")
+        .style.background = "#35d07f";
 }
 
 
-// ========================================
+// ==============================
 // ТАРИФЫ
-// ========================================
+// ==============================
 
 async function openPlans() {
 
     try {
 
-        const result =
-            await apiRequest("/api/plans");
+        const response = await fetch(
+            API_BASE + "/api/plans"
+        );
+
+        const data = await response.json();
 
 
-        if (!result.success) {
+        if (!response.ok) {
 
             throw new Error(
-                "Не удалось загрузить тарифы"
+                "Ошибка сервера: " +
+                response.status
             );
         }
 
 
-        const plans =
-            result.plans;
+        const plans = data.plans;
 
 
-        let message =
+        let text =
             "💳 ТАРИФЫ\n\n";
 
 
         if (plans.week) {
 
-            message +=
-                `7 дней — ${plans.week.price} ₽\n`;
+            text +=
+                "7 дней — " +
+                plans.week.price +
+                " ₽\n";
         }
 
 
         if (plans.month) {
 
-            message +=
-                `30 дней — ${plans.month.price} ₽\n`;
+            text +=
+                "30 дней — " +
+                plans.month.price +
+                " ₽\n";
         }
 
 
         if (plans.three_months) {
 
-            message +=
-                `90 дней — ${plans.three_months.price} ₽\n`;
+            text +=
+                "90 дней — " +
+                plans.three_months.price +
+                " ₽\n";
         }
 
 
-        tg.showAlert(message);
+        tg.showAlert(text);
 
     } catch (error) {
 
         console.error(error);
 
         tg.showAlert(
-            "❌ Не удалось загрузить тарифы.\n\n" +
+            "❌ Ошибка загрузки тарифов\n\n" +
             error.message
         );
     }
 }
 
 
-// ========================================
+// ==============================
 // ПРОФИЛЬ
-// ========================================
-
-async function loadProfile() {
-
-    try {
-
-        const result =
-            await apiRequest("/api/profile");
-
-
-        if (
-            result &&
-            result.success
-        ) {
-
-            userData =
-                result.user;
-
-
-            updateProfileUI();
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Profile error:",
-            error
-        );
-    }
-}
-
-
-function updateProfileUI() {
-
-    if (!userData) return;
-
-
-    const subscription =
-        document.getElementById(
-            "subscriptionStatus"
-        );
-
-
-    const discount =
-        document.getElementById(
-            "discountStatus"
-        );
-
-
-    const referralDiscount =
-        document.getElementById(
-            "referralDiscount"
-        );
-
-
-    if (subscription) {
-
-        subscription.textContent =
-            userData.subscription
-                ? "Активна"
-                : "Не активна";
-    }
-
-
-    const discountValue =
-        userData.referral_discount || 0;
-
-
-    if (discount) {
-
-        discount.textContent =
-            discountValue + "%";
-    }
-
-
-    if (referralDiscount) {
-
-        referralDiscount.textContent =
-            discountValue + "%";
-    }
-}
-
+// ==============================
 
 function openProfile() {
 
-    if (!userData) {
+    const user =
+        tg.initDataUnsafe &&
+        tg.initDataUnsafe.user;
+
+
+    if (!user) {
 
         tg.showAlert(
-            "👤 Профиль загружается..."
+            "👤 Профиль\n\n" +
+            "Не удалось получить данные Telegram."
         );
-
-        loadProfile();
 
         return;
     }
 
 
     const name =
-        userData.first_name ||
-        "Пользователь";
+        user.first_name || "Пользователь";
 
 
     const username =
-        userData.username
-            ? "@" + userData.username
+        user.username
+            ? "@" + user.username
             : "—";
 
 
@@ -360,289 +194,187 @@ function openProfile() {
 
         "👤 ПРОФИЛЬ\n\n" +
 
-        `Имя: ${name}\n` +
+        "Имя: " +
+        name +
+        "\n\n" +
 
-        `Username: ${username}\n\n` +
+        "Username: " +
+        username +
+        "\n\n" +
 
-        "Подписка: " +
-
-        (
-            userData.subscription
-                ? "Активна"
-                : "Не активна"
-        )
+        "ID: " +
+        user.id
     );
 }
 
 
-// ========================================
-// СЕРВЕР
-// ========================================
-
-function changeServer() {
-
-    const select =
-        document.getElementById(
-            "serverSelect"
-        );
-
-
-    const name =
-        document.getElementById(
-            "serverName"
-        );
-
-
-    const ping =
-        document.getElementById(
-            "serverPing"
-        );
-
-
-    const servers = {
-
-        germany: {
-            name: "🇩🇪 Германия",
-            ping: "38 ms"
-        },
-
-        netherlands: {
-            name: "🇳🇱 Нидерланды",
-            ping: "42 ms"
-        },
-
-        finland: {
-            name: "🇫🇮 Финляндия",
-            ping: "51 ms"
-        }
-
-    };
-
-
-    const server =
-        servers[select.value];
-
-
-    if (!server) return;
-
-
-    name.textContent =
-        server.name;
-
-    ping.textContent =
-        server.ping;
-}
-
-
-// ========================================
+// ==============================
 // УСТРОЙСТВА
-// ========================================
+// ==============================
 
 function openDevices() {
 
     tg.showAlert(
         "📱 Устройства\n\n" +
-        "Подключено: 0 / 3\n\n" +
-        "Управление устройствами подключим следующим этапом."
+        "Подключено: 0 / 3"
     );
 }
 
 
-// ========================================
+// ==============================
 // РЕФЕРАЛЫ
-// ========================================
+// ==============================
 
-async function openReferrals() {
+function openReferrals() {
 
-    try {
-
-        const result =
-            await apiRequest(
-                "/api/referrals"
-            );
-
-
-        const referrals =
-            result.referrals || 0;
-
-
-        const discount =
-            result.discount || 0;
-
-
-        tg.showAlert(
-
-            "🎁 РЕФЕРАЛЫ\n\n" +
-
-            `Приглашено: ${referrals}\n` +
-
-            `Скидка: ${discount}%`
-        );
-
-    } catch (error) {
-
-        console.error(error);
-
-        tg.showAlert(
-            "❌ Не удалось загрузить рефералов."
-        );
-    }
+    tg.showAlert(
+        "🎁 Рефералы\n\n" +
+        "Реферальная система подключается."
+    );
 }
 
 
-// ========================================
+// ==============================
 // ПРОМОКОД
-// ========================================
+// ==============================
 
 function openPromo() {
 
     tg.showAlert(
-        "🎟 ПРОМОКОД\n\n" +
-        "Система промокодов будет подключена позже."
+        "🎟 Промокод\n\n" +
+        "Введи промокод на следующем этапе."
     );
 }
 
 
-// ========================================
-// КНОПКИ
-// ========================================
+// ==============================
+// СЕРВЕР
+// ==============================
 
-function setupButtons() {
+function changeServer() {
 
-    const connectButton =
-        document.getElementById(
-            "connectButton"
-        );
+    const select =
+        document.getElementById("serverSelect");
 
+    const serverName =
+        document.getElementById("serverName");
 
-    const profileButton =
-        document.getElementById(
-            "profileButton"
-        );
+    const serverPing =
+        document.getElementById("serverPing");
 
 
-    const plansButton =
-        document.getElementById(
-            "plansButton"
-        );
+    if (select.value === "germany") {
+
+        serverName.textContent =
+            "🇩🇪 Германия";
+
+        serverPing.textContent =
+            "38 ms";
+
+    } else if (
+        select.value === "netherlands"
+    ) {
+
+        serverName.textContent =
+            "🇳🇱 Нидерланды";
+
+        serverPing.textContent =
+            "42 ms";
+
+    } else if (
+        select.value === "finland"
+    ) {
+
+        serverName.textContent =
+            "🇫🇮 Финляндия";
+
+        serverPing.textContent =
+            "51 ms";
+    }
+}
 
 
-    const devicesButton =
-        document.getElementById(
-            "devicesButton"
-        );
+// ==============================
+// ПОДКЛЮЧЕНИЕ КНОПОК
+// ==============================
 
-
-    const referralsButton =
-        document.getElementById(
-            "referralsButton"
-        );
-
-
-    const promoButton =
-        document.getElementById(
-            "promoButton"
-        );
-
-
-    const plansNavButton =
-        document.getElementById(
-            "plansNavButton"
-        );
-
-
-    const profileNavButton =
-        document.getElementById(
-            "profileNavButton"
-        );
-
-
-    const serverSelect =
-        document.getElementById(
-            "serverSelect"
-        );
-
-
-    connectButton.addEventListener(
+document
+    .getElementById("connectButton")
+    .addEventListener(
         "click",
         connectVPN
     );
 
 
-    profileButton.addEventListener(
-        "click",
-        openProfile
-    );
-
-
-    plansButton.addEventListener(
+document
+    .getElementById("plansButton")
+    .addEventListener(
         "click",
         openPlans
     );
 
 
-    devicesButton.addEventListener(
+document
+    .getElementById("devicesButton")
+    .addEventListener(
         "click",
         openDevices
     );
 
 
-    referralsButton.addEventListener(
+document
+    .getElementById("referralsButton")
+    .addEventListener(
         "click",
         openReferrals
     );
 
 
-    promoButton.addEventListener(
+document
+    .getElementById("promoButton")
+    .addEventListener(
         "click",
         openPromo
     );
 
 
-    plansNavButton.addEventListener(
-        "click",
-        openPlans
-    );
-
-
-    profileNavButton.addEventListener(
+document
+    .getElementById("profileButton")
+    .addEventListener(
         "click",
         openProfile
     );
 
 
-    serverSelect.addEventListener(
+document
+    .getElementById("plansNavButton")
+    .addEventListener(
+        "click",
+        openPlans
+    );
+
+
+document
+    .getElementById("profileNavButton")
+    .addEventListener(
+        "click",
+        openProfile
+    );
+
+
+document
+    .getElementById("serverSelect")
+    .addEventListener(
         "change",
         changeServer
     );
-}
 
 
-// ========================================
-// ЗАПУСК
-// ========================================
+// ==============================
+// ГОТОВО
+// ==============================
 
-async function init() {
-
-    updateVPN();
-
-    setupButtons();
-
-    await loadProfile();
-}
-
-
-if (
-    document.readyState === "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        init
-    );
-
-} else {
-
-    init();
-}
+console.log(
+    "VPN APP ЗАПУЩЕН"
+);
 ```
