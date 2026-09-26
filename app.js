@@ -11,7 +11,7 @@ let connected = false;
 // API
 // ================================
 
-const API_BASE = "https://alberta-both-universe-ctrl.trycloudflare.com";
+const API_BASE = "https://circus-interim-simon-italiano.trycloudflare.com";
 
 async function api(url, options = {}) {
 
