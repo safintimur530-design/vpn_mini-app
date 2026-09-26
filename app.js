@@ -1,4 +1,4 @@
-alert("НОВЫЙ APP.JS ЗАГРУЖЕН");
+```javascript
 const tg = window.Telegram.WebApp;
 
 tg.ready();
@@ -6,38 +6,42 @@ tg.expand();
 
 const API_BASE = "https://filters-jesse-occupied-potato.trycloudflare.com";
 
+alert("НОВЫЙ APP.JS ЗАГРУЖЕН");
 
 async function api(url, options = {}) {
-
     try {
-
         const response = await fetch(API_BASE + url, {
-
-            ...options,
-
+            method: options.method || "GET",
             headers: {
                 "Content-Type": "application/json",
-                "X-Telegram-Init-Data": tg.initData,
+                "X-Telegram-Init-Data": tg.initData || "",
                 ...(options.headers || {})
-            }
-
+            },
+            body: options.body ? JSON.stringify(options.body) : undefined
         });
 
-        const data = await response.json();
+        const text = await response.text();
+
+        let data;
+
+        try {
+            data = JSON.parse(text);
+        } catch {
+            throw new Error("Сервер вернул неправильный ответ: " + text.slice(0, 150));
+        }
 
         if (!response.ok) {
-            throw new Error(data.message || "Ошибка сервера");
+            throw new Error(data.message || `Ошибка HTTP ${response.status}`);
         }
 
         return data;
 
     } catch (error) {
-
         console.error("API ERROR:", error);
 
         tg.showAlert(
-            "❌ Не удалось подключиться к серверу.\n\n" +
-            "Попробуй ещё раз."
+            "❌ ОШИБКА API\n\n" +
+            error.message
         );
 
         return null;
@@ -45,226 +49,124 @@ async function api(url, options = {}) {
 }
 
 
-/* =========================
-   АВТОРИЗАЦИЯ
-========================= */
+// =========================
+// ПРОФИЛЬ / АВТОРИЗАЦИЯ
+// =========================
 
 async function login() {
-
-    const result = await api("/api/auth", {
+    const data = await api("/api/auth", {
         method: "POST"
     });
 
-    if (!result || !result.success) {
-        console.log("Авторизация не выполнена");
-        return null;
-    }
+    if (!data) return null;
 
-    console.log("✅ Авторизация успешна");
-
-    return result;
+    return data;
 }
 
-
-/* =========================
-   ПРОФИЛЬ
-========================= */
 
 async function loadProfile() {
+    const data = await api("/api/profile");
 
-    const result = await api("/api/profile");
+    if (!data) return null;
 
-    if (!result || !result.success) {
-        return null;
-    }
-
-    console.log("Профиль:", result);
-
-    return result;
+    return data;
 }
 
 
-/* =========================
-   VPN
-========================= */
+// =========================
+// VPN
+// =========================
 
 let vpnConnected = false;
 
-
 async function connectVPN() {
 
-    const button = document.querySelector(".connect-button");
-
-    if (button) {
-        button.disabled = true;
-        button.textContent = "ЗАГРУЗКА...";
-    }
+    tg.showAlert("🔄 Проверяем профиль...");
 
     const profile = await loadProfile();
 
-    if (!profile) {
-
-        if (button) {
-            button.disabled = false;
-            button.textContent = "ПОДКЛЮЧИТЬ";
-        }
-
-        return;
-    }
+    if (!profile) return;
 
     vpnConnected = !vpnConnected;
 
     updateVPNStatus();
 
-    if (button) {
-        button.disabled = false;
+    if (vpnConnected) {
+        tg.showAlert(
+            "🟢 VPN подключён!\n\n" +
+            "Сервер: " + getSelectedServer()
+        );
+    } else {
+        tg.showAlert("🔴 VPN отключён.");
     }
 }
 
 
 function updateVPNStatus() {
 
-    const circle = document.getElementById("statusCircle");
-    const title = document.getElementById("statusTitle");
-    const subtitle = document.getElementById("statusSubtitle");
-    const button = document.querySelector(".connect-button");
+    const button = document.querySelector(".vpn-button");
+
+    if (!button) return;
 
     if (vpnConnected) {
-
-        if (circle) {
-            circle.classList.add("connected");
-        }
-
-        if (title) {
-            title.textContent = "VPN подключён";
-        }
-
-        if (subtitle) {
-            subtitle.textContent = "Соединение защищено";
-        }
-
-        if (button) {
-            button.textContent = "ОТКЛЮЧИТЬ";
-        }
-
+        button.innerText = "Отключиться";
     } else {
-
-        if (circle) {
-            circle.classList.remove("connected");
-        }
-
-        if (title) {
-            title.textContent = "VPN отключён";
-        }
-
-        if (subtitle) {
-            subtitle.textContent = "Нажми, чтобы подключиться";
-        }
-
-        if (button) {
-            button.textContent = "ПОДКЛЮЧИТЬ";
-        }
+        button.innerText = "Подключиться";
     }
 }
 
 
-/* =========================
-   СЕРВЕР
-========================= */
+// =========================
+// СЕРВЕР
+// =========================
 
-function changeServer() {
+let selectedServer = "Germany";
 
-    const select = document.getElementById("serverSelect");
+function changeServer(server) {
 
-    const serverName = document.getElementById("serverName");
+    selectedServer = server;
 
-    const serverPing = document.getElementById("serverPing");
-
-    if (!select) {
-        return;
-    }
-
-    const server = select.value;
-
-
-    if (server === "germany") {
-
-        if (serverName) {
-            serverName.textContent = "🇩🇪 Германия";
-        }
-
-        if (serverPing) {
-            serverPing.textContent = "38 ms";
-        }
-
-    }
-
-
-    if (server === "netherlands") {
-
-        if (serverName) {
-            serverName.textContent = "🇳🇱 Нидерланды";
-        }
-
-        if (serverPing) {
-            serverPing.textContent = "42 ms";
-        }
-
-    }
-
-
-    if (server === "finland") {
-
-        if (serverName) {
-            serverName.textContent = "🇫🇮 Финляндия";
-        }
-
-        if (serverPing) {
-            serverPing.textContent = "45 ms";
-        }
-
-    }
+    tg.showAlert(
+        "🌍 Выбран сервер:\n\n" +
+        server
+    );
 }
 
 
-/* =========================
-   ПОДПИСКА
-========================= */
+function getSelectedServer() {
+    return selectedServer;
+}
+
+
+// =========================
+// ТАРИФЫ
+// =========================
 
 async function openPlans() {
 
-    const result = await api("/api/plans");
+    const data = await api("/api/plans");
 
-    if (!result || !result.success) {
-        return;
-    }
+    if (!data) return;
 
-    const plans = result.plans;
+    const plans = data.plans;
 
-    let text = "💳 Тарифы VPN\n\n";
+    const text =
+        "💳 ТАРИФЫ VPN\n\n" +
 
-    if (plans.week) {
+        "🇩🇪 7 дней — " +
+        plans.week.price +
+        " ₽\n\n" +
 
-        text +=
-            `7 дней — ${plans.week.price} ₽\n`;
-    }
+        "🇩🇪 30 дней — " +
+        plans.month.price +
+        " ₽\n\n" +
 
-    if (plans.month) {
-
-        text +=
-            `30 дней — ${plans.month.price} ₽\n`;
-    }
-
-    if (plans.three_months) {
-
-        text +=
-            `90 дней — ${plans.three_months.price} ₽\n`;
-    }
-
-    text += "\nВыбери тариф для покупки.";
+        "🇩🇪 90 дней — " +
+        plans.three_months.price +
+        " ₽";
 
     tg.showPopup({
-        title: "💳 Подписка",
+        title: "Тарифы",
         message: text,
         buttons: [
             {
@@ -283,187 +185,153 @@ async function openPlans() {
                 text: "90 дней"
             },
             {
-                id: "close",
-                type: "cancel",
-                text: "Закрыть"
+                type: "cancel"
             }
         ]
-    }, async function (buttonId) {
+    }, function(buttonId) {
 
-        if (buttonId === "close") {
-            return;
-        }
+        if (!buttonId) return;
 
-        await createPayment(buttonId);
+        createPayment(buttonId);
     });
 }
 
 
-/* =========================
-   СОЗДАНИЕ ПЛАТЕЖА
-========================= */
+// =========================
+// ОПЛАТА
+// =========================
 
 async function createPayment(plan) {
 
-    const result = await api("/api/payment/create", {
-
+    const data = await api("/api/payment/create", {
         method: "POST",
-
-        body: JSON.stringify({
+        body: {
             plan: plan
-        })
-
+        }
     });
 
-
-    if (!result) {
-        return;
-    }
-
-
-    if (!result.success) {
-
-        tg.showAlert(
-            result.message || "Не удалось создать платёж."
-        );
-
-        return;
-    }
-
+    if (!data) return;
 
     tg.showAlert(
         "💳 Платёж создан.\n\n" +
-        "Система оплаты будет подключена следующим этапом."
+        "Тариф: " + plan
     );
 }
 
 
-/* =========================
-   РЕФЕРАЛЫ
-========================= */
+// =========================
+// РЕФЕРАЛЫ
+// =========================
 
 async function openReferrals() {
 
-    const result = await api("/api/referrals");
+    const data = await api("/api/referrals");
 
-    if (!result || !result.success) {
-        return;
-    }
-
-    let text =
-        "🎁 Реферальная система\n\n" +
-        `Приглашено: ${result.referrals || 0}\n` +
-        `Скидка: ${result.discount || 0}%`;
-
-    tg.showAlert(text);
-}
-
-
-/* =========================
-   ПРОФИЛЬ
-========================= */
-
-async function openProfile() {
-
-    const result = await api("/api/profile");
-
-    if (!result || !result.success) {
-        return;
-    }
-
-    const user = result.user || result;
-
-    const name =
-        user.first_name ||
-        user.username ||
-        "Пользователь";
-
-    const username =
-        user.username
-            ? "@" + user.username
-            : "нет";
-
-    const balance =
-        user.balance !== undefined
-            ? user.balance + " ₽"
-            : "0 ₽";
+    if (!data) return;
 
     tg.showAlert(
-
-        "👤 Профиль\n\n" +
-
-        `Имя: ${name}\n` +
-
-        `Username: ${username}\n` +
-
-        `Баланс: ${balance}`
-
+        "👥 РЕФЕРАЛЫ\n\n" +
+        "Приглашено: " +
+        (data.count || 0)
     );
 }
 
 
-/* =========================
-   УСТРОЙСТВА
-========================= */
+// =========================
+// ПРОФИЛЬ
+// =========================
+
+async function openProfile() {
+
+    const data = await api("/api/profile");
+
+    if (!data) return;
+
+    const user = data.user || data;
+
+    tg.showPopup({
+        title: "👤 Профиль",
+        message:
+            "ID: " + (user.telegram_id || user.id || "—") +
+            "\n\nБаланс: " +
+            (user.balance || 0) +
+            " ₽",
+        buttons: [
+            {
+                type: "close",
+                text: "Закрыть"
+            }
+        ]
+    });
+}
+
+
+// =========================
+// УСТРОЙСТВА
+// =========================
 
 function openDevices() {
 
     tg.showAlert(
         "📱 Устройства\n\n" +
-        "Максимальное количество устройств: 3."
+        "Раздел пока находится в разработке."
     );
 }
 
 
-/* =========================
-   ПРОМОКОД
-========================= */
+// =========================
+// ПРОМОКОД
+// =========================
 
 function openPromo() {
 
     tg.showPopup({
-
-        title: "🎟 Промокод",
-
-        message: "Введи промокод.",
-
+        title: "🎁 Промокод",
+        message: "Введи промокод",
         buttons: [
             {
-                id: "close",
-                type: "cancel",
-                text: "Закрыть"
+                id: "enter",
+                type: "default",
+                text: "Ввести"
+            },
+            {
+                type: "cancel"
             }
         ]
+    }, function(buttonId) {
 
+        if (buttonId === "enter") {
+
+            tg.showAlert(
+                "Раздел промокодов пока в разработке."
+            );
+        }
     });
 }
 
 
-/* =========================
-   ЗАПУСК
-========================= */
+// =========================
+// ЗАПУСК
+// =========================
 
 async function startApp() {
 
-    console.log("🚀 Mini App запускается...");
+    console.log("🚀 Mini App запускается");
 
-    console.log(
-        "Telegram initData:",
-        tg.initData ? "получен" : "отсутствует"
-    );
+    const auth = await login();
 
-    const result = await login();
-
-    if (result) {
-
-        await loadProfile();
-
+    if (!auth) {
+        console.log("Авторизация не выполнена");
+        return;
     }
 
-    updateVPNStatus();
+    console.log("✅ Авторизация успешна");
 
-    console.log("✅ Mini App готов");
+    await loadProfile();
+
+    console.log("✅ Профиль загружен");
 }
 
 
 startApp();
+```
