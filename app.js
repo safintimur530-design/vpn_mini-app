@@ -4,7 +4,7 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-const API_BASE = "https://circus-interim-simon-italiano.trycloudflare.com";
+const API_BASE = "https://filters-jesse-occupied-potato.trycloudflare.com";
 
 
 async function api(url, options = {}) {
