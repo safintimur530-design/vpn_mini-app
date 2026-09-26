@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 
@@ -6,10 +7,10 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     >
 
-    <title>VPN Service</title>
+    <title>VPN</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -20,9 +21,11 @@
 
 <div class="app">
 
+    <!-- HEADER -->
+
     <header class="header">
 
-        <div>
+        <div class="brand">
             <div class="logo">VPN</div>
             <div class="subtitle">Secure connection</div>
         </div>
@@ -39,9 +42,14 @@
 
     <main>
 
-        <!-- VPN -->
+        <!-- VPN STATUS -->
 
-        <section class="status-card">
+        <section class="vpn-card">
+
+            <div class="connection-badge">
+                <span id="statusDot"></span>
+                <span id="statusSmall">Не подключено</span>
+            </div>
 
             <div
                 class="status-circle"
@@ -61,11 +69,12 @@
                 class="status-subtitle"
                 id="statusSubtitle"
             >
-                Нажми, чтобы подключиться
+                Твой интернет не защищён
             </div>
 
             <button
                 class="connect-button"
+                id="connectButton"
                 onclick="connectVPN()"
             >
                 ПОДКЛЮЧИТЬ
@@ -78,12 +87,11 @@
 
         <section class="server-card">
 
-            <div class="server-top">
+            <div class="card-heading">
 
                 <div>
-
-                    <div class="server-title">
-                        Сервер
+                    <div class="card-label">
+                        СЕРВЕР
                     </div>
 
                     <div
@@ -92,7 +100,6 @@
                     >
                         🇩🇪 Германия
                     </div>
-
                 </div>
 
                 <div
@@ -127,23 +134,38 @@
         </section>
 
 
-        <!-- INFO -->
+        <!-- ACCOUNT INFO -->
 
-        <section class="info-card">
+        <section class="info-grid">
 
-            <div class="info-item">
+            <div class="info-card">
+
                 <span>Подписка</span>
-                <strong>Не активна</strong>
+
+                <strong id="subscriptionStatus">
+                    Не активна
+                </strong>
+
             </div>
 
-            <div class="info-item">
+            <div class="info-card">
+
                 <span>Устройства</span>
-                <strong>0 / 3</strong>
+
+                <strong id="devicesStatus">
+                    0 / 3
+                </strong>
+
             </div>
 
-            <div class="info-item">
-                <span>Статус</span>
-                <strong>Безопасно</strong>
+            <div class="info-card">
+
+                <span>Скидка</span>
+
+                <strong id="discountStatus">
+                    0%
+                </strong>
+
             </div>
 
         </section>
@@ -151,115 +173,233 @@
 
         <!-- SPEED -->
 
-        <section class="stats">
+        <section class="speed-grid">
 
-            <div class="stat-card">
+            <div class="speed-card">
 
-                <span>↓ Download</span>
+                <div class="speed-icon">
+                    ↓
+                </div>
 
-                <strong>0 Mbps</strong>
+                <div>
+                    <span>Download</span>
+                    <strong id="downloadSpeed">
+                        0 Mbps
+                    </strong>
+                </div>
 
             </div>
 
-            <div class="stat-card">
 
-                <span>↑ Upload</span>
+            <div class="speed-card">
 
-                <strong>0 Mbps</strong>
+                <div class="speed-icon">
+                    ↑
+                </div>
 
-            </div>
-
-        </section>
-
-
-        <h2 class="section-title">
-            Быстрый доступ
-        </h2>
-
-
-        <!-- MENU -->
-
-        <div class="menu-grid">
-
-            <button onclick="openPlans()">
-                <span>💳</span>
-                <small>Подписка</small>
-            </button>
-
-            <button onclick="openDevices()">
-                <span>📱</span>
-                <small>Устройства</small>
-            </button>
-
-            <button onclick="openReferrals()">
-                <span>🎁</span>
-                <small>Рефералы</small>
-            </button>
-
-            <button onclick="openPromo()">
-                <span>🎟</span>
-                <small>Промокод</small>
-            </button>
-
-        </div>
-
-
-        <!-- REFERRAL -->
-
-        <section class="ref-card">
-
-            <div class="ref-icon">
-                🎁
-            </div>
-
-            <div class="ref-content">
-
-                <strong>
-                    Приглашай друзей
-                </strong>
-
-                <p>
-                    За каждого приглашённого
-                    пользователя получаешь +2% скидки.
-                </p>
-
-                <div class="discount">
-                    Твоя скидка:
-                    <b>0%</b>
+                <div>
+                    <span>Upload</span>
+                    <strong id="uploadSpeed">
+                        0 Mbps
+                    </strong>
                 </div>
 
             </div>
 
         </section>
 
+
+        <!-- QUICK ACCESS -->
+
+        <div class="section-header">
+
+            <h2>
+                Быстрый доступ
+            </h2>
+
+        </div>
+
+
+        <section class="menu-grid">
+
+            <button
+                class="menu-card"
+                onclick="openPlans()"
+            >
+
+                <div class="menu-icon">
+                    💳
+                </div>
+
+                <strong>
+                    Подписка
+                </strong>
+
+                <span>
+                    Тарифы и оплата
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-card"
+                onclick="openDevices()"
+            >
+
+                <div class="menu-icon">
+                    📱
+                </div>
+
+                <strong>
+                    Устройства
+                </strong>
+
+                <span>
+                    Управление устройствами
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-card"
+                onclick="openReferrals()"
+            >
+
+                <div class="menu-icon">
+                    🎁
+                </div>
+
+                <strong>
+                    Рефералы
+                </strong>
+
+                <span>
+                    Приглашай друзей
+                </span>
+
+            </button>
+
+
+            <button
+                class="menu-card"
+                onclick="openPromo()"
+            >
+
+                <div class="menu-icon">
+                    🎟
+                </div>
+
+                <strong>
+                    Промокод
+                </strong>
+
+                <span>
+                    Получить скидку
+                </span>
+
+            </button>
+
+        </section>
+
+
+        <!-- REFERRAL -->
+
+        <section class="referral-card">
+
+            <div class="referral-icon">
+                🎁
+            </div>
+
+            <div class="referral-content">
+
+                <strong>
+                    Приглашай друзей
+                </strong>
+
+                <p>
+                    Получай дополнительную скидку
+                    за каждого приглашённого пользователя.
+                </p>
+
+                <div class="referral-bottom">
+
+                    <span>
+                        Твоя скидка
+                    </span>
+
+                    <b id="referralDiscount">
+                        0%
+                    </b>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- SECURITY -->
+
+        <section class="security-card">
+
+            <div class="security-icon">
+                🛡
+            </div>
+
+            <div>
+
+                <strong>
+                    Защита соединения
+                </strong>
+
+                <p>
+                    Данные защищены шифрованием VPN.
+                </p>
+
+            </div>
+
+            <span class="security-status">
+                ●
+            </span>
+
+        </section>
+
     </main>
 
 
-    <!-- NAVIGATION -->
+    <!-- BOTTOM NAVIGATION -->
 
     <nav class="bottom-nav">
 
-        <button class="active">
+        <button class="nav-button active">
 
-            <span>🏠</span>
+            <span>⌂</span>
 
             Главная
 
         </button>
 
 
-        <button onclick="openPlans()">
+        <button
+            class="nav-button"
+            onclick="openPlans()"
+        >
 
-            <span>💳</span>
+            <span>◈</span>
 
             Тарифы
 
         </button>
 
 
-        <button onclick="openProfile()">
+        <button
+            class="nav-button"
+            onclick="openProfile()"
+        >
 
-            <span>👤</span>
+            <span>●</span>
 
             Профиль
 
@@ -270,8 +410,9 @@
 </div>
 
 
-<script src="app.js?v=2"></script>
+<script src="app.js?v=3"></script>
 
 </body>
 
 </html>
+```
