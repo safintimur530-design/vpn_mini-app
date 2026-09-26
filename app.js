@@ -4,73 +4,136 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-const API_BASE = "https://filters-jesse-occupied-potato.trycloudflare.com";
 
-alert("НОВЫЙ APP.JS ЗАГРУЖЕН");
+// =========================
+// НАСТРОЙКИ
+// =========================
 
-async function api(url, options = {}) {
+const API_BASE =
+    "https://filters-jesse-occupied-potato.trycloudflare.com";
+
+let userData = null;
+let connected = false;
+
+
+// =========================
+// TELEGRAM INIT DATA
+// =========================
+
+const initData = tg.initData || "";
+
+
+// =========================
+// API
+// =========================
+
+async function apiRequest(endpoint, options = {}) {
+
     try {
-        const response = await fetch(API_BASE + url, {
-            method: options.method || "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "X-Telegram-Init-Data": tg.initData || "",
-                ...(options.headers || {})
-            },
-            body: options.body ? JSON.stringify(options.body) : undefined
-        });
 
-        const text = await response.text();
+        const response = await fetch(
+            API_BASE + endpoint,
+            {
+                method: options.method || "GET",
 
-        let data;
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Telegram-Init-Data": initData
+                },
 
-        try {
-            data = JSON.parse(text);
-        } catch {
-            throw new Error("Сервер вернул неправильный ответ: " + text.slice(0, 150));
-        }
+                body: options.body
+                    ? JSON.stringify(options.body)
+                    : undefined
+            }
+        );
+
+        const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.message || `Ошибка HTTP ${response.status}`);
+
+            throw new Error(
+                data.error ||
+                data.message ||
+                `Ошибка сервера: ${response.status}`
+            );
         }
 
         return data;
 
     } catch (error) {
+
         console.error("API ERROR:", error);
 
-        tg.showAlert(
-            "❌ ОШИБКА API\n\n" +
-            error.message
-        );
-
-        return null;
+        throw error;
     }
 }
 
 
 // =========================
-// ПРОФИЛЬ / АВТОРИЗАЦИЯ
+// ЗАГРУЗКА ПРОФИЛЯ
 // =========================
 
-async function login() {
-    tg.showAlert("ТЕСТ: openPlans запустился");
-const data = await api("/api/plans");
-        method: "POST"
-    });
+async function loadProfile() {
 
-    if (!data) return null;
+    try {
 
-    return data;
+        const result =
+            await apiRequest("/api/profile");
+
+        if (result.success) {
+
+            userData = result.user;
+
+            updateProfileUI();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Ошибка загрузки профиля:",
+            error
+        );
+    }
 }
 
 
-async function loadProfile() {
-    const data = await api("/api/profile");
+// =========================
+// ОБНОВЛЕНИЕ ПРОФИЛЯ
+// =========================
 
-    if (!data) return null;
+function updateProfileUI() {
 
-    return data;
+    if (!userData) return;
+
+
+    if (userData.subscription) {
+
+        document.getElementById(
+            "subscriptionStatus"
+        ).textContent = "Активна";
+
+    } else {
+
+        document.getElementById(
+            "subscriptionStatus"
+        ).textContent = "Не активна";
+    }
+
+
+    if (
+        userData.referral_discount !== undefined
+    ) {
+
+        document.getElementById(
+            "discountStatus"
+        ).textContent =
+            userData.referral_discount + "%";
+
+        document.getElementById(
+            "referralDiscount"
+        ).textContent =
+            userData.referral_discount + "%";
+    }
 }
 
 
@@ -78,64 +141,105 @@ async function loadProfile() {
 // VPN
 // =========================
 
-let vpnConnected = false;
+function connectVPN() {
 
-async function connectVPN() {
+    if (connected) {
 
-    tg.showAlert("🔄 Проверяем профиль...");
+        connected = false;
 
-    const profile = await loadProfile();
+        updateVPNStatus();
 
-    if (!profile) return;
-
-    vpnConnected = !vpnConnected;
-
-    updateVPNStatus();
-
-    if (vpnConnected) {
-        tg.showAlert(
-            "🟢 VPN подключён!\n\n" +
-            "Сервер: " + getSelectedServer()
-        );
-    } else {
-        tg.showAlert("🔴 VPN отключён.");
+        return;
     }
-}
 
 
-function updateVPNStatus() {
+    tg.showConfirm(
+        "Подключить VPN?",
+        function (confirmed) {
 
-    const button = document.querySelector(".vpn-button");
+            if (!confirmed) return;
 
-    if (!button) return;
+            connected = true;
 
-    if (vpnConnected) {
-        button.innerText = "Отключиться";
-    } else {
-        button.innerText = "Подключиться";
-    }
-}
-
-
-// =========================
-// СЕРВЕР
-// =========================
-
-let selectedServer = "Germany";
-
-function changeServer(server) {
-
-    selectedServer = server;
-
-    tg.showAlert(
-        "🌍 Выбран сервер:\n\n" +
-        server
+            updateVPNStatus();
+        }
     );
 }
 
 
-function getSelectedServer() {
-    return selectedServer;
+// =========================
+// СТАТУС VPN
+// =========================
+
+function updateVPNStatus() {
+
+    const circle =
+        document.getElementById("statusCircle");
+
+    const title =
+        document.getElementById("statusTitle");
+
+    const subtitle =
+        document.getElementById("statusSubtitle");
+
+    const button =
+        document.getElementById("connectButton");
+
+    const dot =
+        document.getElementById("statusDot");
+
+    const small =
+        document.getElementById("statusSmall");
+
+
+    if (connected) {
+
+        circle.classList.add("connected");
+
+        button.classList.add("connected");
+
+        button.textContent =
+            "ОТКЛЮЧИТЬ";
+
+        title.textContent =
+            "VPN подключён";
+
+        subtitle.textContent =
+            "Соединение защищено";
+
+        small.textContent =
+            "Подключено";
+
+        dot.style.background =
+            "#35d07f";
+
+        dot.style.boxShadow =
+            "0 0 10px rgba(53,208,127,0.7)";
+
+    } else {
+
+        circle.classList.remove("connected");
+
+        button.classList.remove("connected");
+
+        button.textContent =
+            "ПОДКЛЮЧИТЬ";
+
+        title.textContent =
+            "VPN отключён";
+
+        subtitle.textContent =
+            "Твой интернет не защищён";
+
+        small.textContent =
+            "Не подключено";
+
+        dot.style.background =
+            "#657080";
+
+        dot.style.boxShadow =
+            "0 0 8px rgba(101,112,128,0.5)";
+    }
 }
 
 
@@ -145,96 +249,110 @@ function getSelectedServer() {
 
 async function openPlans() {
 
-    const data = await api("/api/plans");
+    try {
 
-    if (!data) return;
+        const result =
+            await apiRequest("/api/plans");
 
-    const plans = data.plans;
+        if (!result.success) {
 
-    const text =
-        "💳 ТАРИФЫ VPN\n\n" +
-
-        "🇩🇪 7 дней — " +
-        plans.week.price +
-        " ₽\n\n" +
-
-        "🇩🇪 30 дней — " +
-        plans.month.price +
-        " ₽\n\n" +
-
-        "🇩🇪 90 дней — " +
-        plans.three_months.price +
-        " ₽";
-
-    tg.showPopup({
-        title: "Тарифы",
-        message: text,
-        buttons: [
-            {
-                id: "week",
-                type: "default",
-                text: "7 дней"
-            },
-            {
-                id: "month",
-                type: "default",
-                text: "30 дней"
-            },
-            {
-                id: "three_months",
-                type: "default",
-                text: "90 дней"
-            },
-            {
-                type: "cancel"
-            }
-        ]
-    }, function(buttonId) {
-
-        if (!buttonId) return;
-
-        createPayment(buttonId);
-    });
-}
-
-
-// =========================
-// ОПЛАТА
-// =========================
-
-async function createPayment(plan) {
-
-    const data = await api("/api/payment/create", {
-        method: "POST",
-        body: {
-            plan: plan
+            throw new Error(
+                "Не удалось загрузить тарифы"
+            );
         }
-    });
 
-    if (!data) return;
 
-    tg.showAlert(
-        "💳 Платёж создан.\n\n" +
-        "Тариф: " + plan
-    );
+        const plans = result.plans;
+
+
+        let text =
+            "💳 ТАРИФЫ\n\n";
+
+
+        if (plans.week) {
+
+            text +=
+                `7 дней — ${plans.week.price} ₽\n`;
+        }
+
+
+        if (plans.month) {
+
+            text +=
+                `30 дней — ${plans.month.price} ₽\n`;
+        }
+
+
+        if (plans.three_months) {
+
+            text +=
+                `90 дней — ${plans.three_months.price} ₽\n`;
+        }
+
+
+        text +=
+            "\nОплата будет подключена следующим этапом.";
+
+
+        tg.showAlert(text);
+
+    } catch (error) {
+
+        tg.showAlert(
+            "❌ Не удалось загрузить тарифы.\n\n" +
+            error.message
+        );
+    }
 }
 
 
 // =========================
-// РЕФЕРАЛЫ
+// СЕРВЕР
 // =========================
 
-async function openReferrals() {
+function changeServer() {
 
-    const data = await api("/api/referrals");
+    const select =
+        document.getElementById("serverSelect");
 
-    if (!data) return;
+    const name =
+        document.getElementById("serverName");
 
-    tg.showAlert(
-        "👥 РЕФЕРАЛЫ\n\n" +
-        "Приглашено: " +
-        (data.count || 0)
-    );
+    const ping =
+        document.getElementById("serverPing");
+
+
+    const servers = {
+
+        germany: {
+            name: "🇩🇪 Германия",
+            ping: "38 ms"
+        },
+
+        netherlands: {
+            name: "🇳🇱 Нидерланды",
+            ping: "42 ms"
+        },
+
+        finland: {
+            name: "🇫🇮 Финляндия",
+            ping: "51 ms"
+        }
+
+    };
+
+
+    const server =
+        servers[select.value];
+
+    if (!server) return;
+
+
+    name.textContent =
+        server.name;
+
+    ping.textContent =
+        server.ping;
 }
 
 
@@ -242,28 +360,49 @@ async function openReferrals() {
 // ПРОФИЛЬ
 // =========================
 
-async function openProfile() {
+function openProfile() {
 
-    const data = await api("/api/profile");
+    if (!userData) {
 
-    if (!data) return;
+        tg.showAlert(
+            "👤 Профиль загружается..."
+        );
 
-    const user = data.user || data;
+        loadProfile();
 
-    tg.showPopup({
-        title: "👤 Профиль",
-        message:
-            "ID: " + (user.telegram_id || user.id || "—") +
-            "\n\nБаланс: " +
-            (user.balance || 0) +
-            " ₽",
-        buttons: [
-            {
-                type: "close",
-                text: "Закрыть"
-            }
-        ]
-    });
+        return;
+    }
+
+
+    const user =
+        userData;
+
+
+    const firstName =
+        user.first_name ||
+        "Пользователь";
+
+
+    const username =
+        user.username
+            ? "@" + user.username
+            : "—";
+
+
+    tg.showAlert(
+
+        "👤 ПРОФИЛЬ\n\n" +
+
+        `Имя: ${firstName}\n` +
+
+        `Username: ${username}\n\n` +
+
+        `Подписка: ${
+            user.subscription
+                ? "Активна"
+                : "Не активна"
+        }`
+    );
 }
 
 
@@ -275,8 +414,57 @@ function openDevices() {
 
     tg.showAlert(
         "📱 Устройства\n\n" +
-        "Раздел пока находится в разработке."
+        "Сейчас подключено: 0 / 3\n\n" +
+        "Управление устройствами подключим следующим этапом."
     );
+}
+
+
+// =========================
+// РЕФЕРАЛЫ
+// =========================
+
+async function openReferrals() {
+
+    try {
+
+        const result =
+            await apiRequest(
+                "/api/referrals"
+            );
+
+
+        if (!result.success) {
+
+            throw new Error(
+                "Не удалось получить рефералы"
+            );
+        }
+
+
+        const referrals =
+            result.referrals || 0;
+
+
+        const discount =
+            result.discount || 0;
+
+
+        tg.showAlert(
+
+            "🎁 РЕФЕРАЛЬНАЯ ПРОГРАММА\n\n" +
+
+            `Приглашено: ${referrals}\n` +
+
+            `Твоя скидка: ${discount}%`
+        );
+
+    } catch (error) {
+
+        tg.showAlert(
+            "❌ Не удалось загрузить реферальную информацию."
+        );
+    }
 }
 
 
@@ -286,28 +474,10 @@ function openDevices() {
 
 function openPromo() {
 
-    tg.showPopup({
-        title: "🎁 Промокод",
-        message: "Введи промокод",
-        buttons: [
-            {
-                id: "enter",
-                type: "default",
-                text: "Ввести"
-            },
-            {
-                type: "cancel"
-            }
-        ]
-    }, function(buttonId) {
-
-        if (buttonId === "enter") {
-
-            tg.showAlert(
-                "Раздел промокодов пока в разработке."
-            );
-        }
-    });
+    tg.showAlert(
+        "🎟 Промокод\n\n" +
+        "Система промокодов будет подключена следующим этапом."
+    );
 }
 
 
@@ -315,24 +485,15 @@ function openPromo() {
 // ЗАПУСК
 // =========================
 
-async function startApp() {
+async function init() {
 
-    console.log("🚀 Mini App запускается");
-
-    const auth = await login();
-
-    if (!auth) {
-        console.log("Авторизация не выполнена");
-        return;
-    }
-
-    console.log("✅ Авторизация успешна");
+    updateVPNStatus();
 
     await loadProfile();
-
-    console.log("✅ Профиль загружен");
 }
 
 
-startApp();
+// Запускаем приложение
+
+init();
 ```
