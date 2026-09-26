@@ -140,9 +140,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         showMessage(
             "💳 ТАРИФЫ\n\n" +
-            "7 дней — 199 ₽\n" +
-            "30 дней — 499 ₽\n" +
-            "90 дней — 1199 ₽"
+            "7 дней — 99 ₽\n" +
+            "30 дней — 299 ₽\n" +
+            "90 дней — 799 ₽"
         );
 
     });
@@ -152,9 +152,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         showMessage(
             "💳 ТАРИФЫ\n\n" +
-            "7 дней — 199 ₽\n" +
-            "30 дней — 499 ₽\n" +
-            "90 дней — 1199 ₽"
+            "7 дней — 99 ₽\n" +
+            "30 дней — 299 ₽\n" +
+            "90 дней — 799 ₽"
         );
 
     });
