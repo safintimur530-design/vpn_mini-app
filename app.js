@@ -1,31 +1,14 @@
 ```javascript
 "use strict";
 
-window.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
-    // =========================
-    // TELEGRAM
-    // =========================
-
-    const tg = window.Telegram?.WebApp || null;
+    const tg = window.Telegram?.WebApp;
 
     if (tg) {
         tg.ready();
         tg.expand();
     }
-
-    function showMessage(text) {
-        if (tg && typeof tg.showAlert === "function") {
-            tg.showAlert(text);
-        } else {
-            alert(text);
-        }
-    }
-
-
-    // =========================
-    // ELEMENTS
-    // =========================
 
     const connectButton = document.getElementById("connectButton");
     const plansButton = document.getElementById("plansButton");
@@ -34,7 +17,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const promoButton = document.getElementById("promoButton");
 
     const profileButton = document.getElementById("profileButton");
-
     const plansNavButton = document.getElementById("plansNavButton");
     const profileNavButton = document.getElementById("profileNavButton");
 
@@ -46,24 +28,18 @@ window.addEventListener("DOMContentLoaded", () => {
     const statusSmall = document.getElementById("statusSmall");
     const statusDot = document.getElementById("statusDot");
 
-
-    // =========================
-    // CHECK
-    // =========================
-
-    if (!connectButton) {
-        alert("ОШИБКА: connectButton не найден");
-        return;
-    }
-
-
-    // =========================
-    // VPN
-    // =========================
-
     let connected = false;
 
-    connectButton.addEventListener("click", () => {
+    function showMessage(message) {
+        if (tg && typeof tg.showAlert === "function") {
+            tg.showAlert(message);
+        } else {
+            alert(message);
+        }
+    }
+
+    // VPN
+    connectButton?.addEventListener("click", () => {
 
         connected = !connected;
 
@@ -73,159 +49,85 @@ window.addEventListener("DOMContentLoaded", () => {
             connectButton.classList.add("connected");
 
             connectButton.textContent = "ОТКЛЮЧИТЬ";
+            statusTitle.textContent = "VPN подключён";
+            statusSubtitle.textContent = "Соединение защищено";
+            statusSmall.textContent = "Подключено";
 
-            if (statusTitle) {
-                statusTitle.textContent = "VPN подключён";
-            }
-
-            if (statusSubtitle) {
-                statusSubtitle.textContent =
-                    "Соединение защищено";
-            }
-
-            if (statusSmall) {
-                statusSmall.textContent =
-                    "Подключено";
-            }
-
-            if (statusDot) {
-                statusDot.style.background =
-                    "#35d07f";
-            }
+            statusDot.style.background = "#35d07f";
 
         } else {
 
             statusCircle?.classList.remove("connected");
             connectButton.classList.remove("connected");
 
-            connectButton.textContent =
-                "ПОДКЛЮЧИТЬ";
+            connectButton.textContent = "ПОДКЛЮЧИТЬ";
+            statusTitle.textContent = "VPN отключён";
+            statusSubtitle.textContent = "Твой интернет не защищён";
+            statusSmall.textContent = "Не подключено";
 
-            if (statusTitle) {
-                statusTitle.textContent =
-                    "VPN отключён";
-            }
-
-            if (statusSubtitle) {
-                statusSubtitle.textContent =
-                    "Твой интернет не защищён";
-            }
-
-            if (statusSmall) {
-                statusSmall.textContent =
-                    "Не подключено";
-            }
-
-            if (statusDot) {
-                statusDot.style.background =
-                    "#657080";
-            }
+            statusDot.style.background = "#657080";
         }
-
     });
 
-
-    // =========================
-    // SUBSCRIPTION
-    // =========================
-
+    // Подписка
     function openPlans() {
-
         showMessage(
             "💳 ТАРИФЫ\n\n" +
             "7 дней — 199 ₽\n" +
             "30 дней — 499 ₽\n" +
             "90 дней — 1199 ₽"
         );
-
     }
 
-
-    // =========================
-    // PROFILE
-    // =========================
-
+    // Профиль
     function openProfile() {
 
-        const user =
-            tg?.initDataUnsafe?.user;
+        const user = tg?.initDataUnsafe?.user;
 
         if (!user) {
-
             showMessage(
                 "👤 ПРОФИЛЬ\n\n" +
-                "Telegram не передал данные пользователя."
+                "Данные Telegram пока недоступны."
             );
-
             return;
         }
 
-        const name =
-            user.first_name || "Пользователь";
-
-        const username =
-            user.username
-                ? "@" + user.username
-                : "—";
-
         showMessage(
             "👤 ПРОФИЛЬ\n\n" +
-            "Имя: " + name +
-            "\n\n" +
-            "Username: " + username +
-            "\n\n" +
-            "ID: " + user.id
+            "Имя: " +
+            (user.first_name || "—") +
+            "\n\nUsername: " +
+            (user.username ? "@" + user.username : "—") +
+            "\n\nID: " +
+            user.id
         );
-
     }
 
-
-    // =========================
-    // DEVICES
-    // =========================
-
+    // Устройства
     function openDevices() {
-
         showMessage(
             "📱 УСТРОЙСТВА\n\n" +
             "Подключено: 0 / 3"
         );
-
     }
 
-
-    // =========================
-    // REFERRALS
-    // =========================
-
+    // Рефералы
     function openReferrals() {
-
         showMessage(
             "🎁 РЕФЕРАЛЫ\n\n" +
             "Приглашай друзей и получай скидку."
         );
-
     }
 
-
-    // =========================
-    // PROMO
-    // =========================
-
+    // Промокод
     function openPromo() {
-
         showMessage(
             "🎟 ПРОМОКОД\n\n" +
-            "Функция будет доступна на следующем этапе."
+            "Функция промокодов будет добавлена позже."
         );
-
     }
 
-
-    // =========================
-    // SERVERS
-    // =========================
-
+    // Сервер
     serverSelect?.addEventListener("change", () => {
 
         const serverName =
@@ -234,88 +136,34 @@ window.addEventListener("DOMContentLoaded", () => {
         const serverPing =
             document.getElementById("serverPing");
 
-        if (!serverName || !serverPing) {
-            return;
-        }
+        if (!serverName || !serverPing) return;
 
         if (serverSelect.value === "germany") {
-
-            serverName.textContent =
-                "🇩🇪 Германия";
-
-            serverPing.textContent =
-                "38 ms";
-
+            serverName.textContent = "🇩🇪 Германия";
+            serverPing.textContent = "38 ms";
         }
 
         if (serverSelect.value === "netherlands") {
-
-            serverName.textContent =
-                "🇳🇱 Нидерланды";
-
-            serverPing.textContent =
-                "42 ms";
-
+            serverName.textContent = "🇳🇱 Нидерланды";
+            serverPing.textContent = "42 ms";
         }
 
         if (serverSelect.value === "finland") {
-
-            serverName.textContent =
-                "🇫🇮 Финляндия";
-
-            serverPing.textContent =
-                "51 ms";
-
+            serverName.textContent = "🇫🇮 Финляндия";
+            serverPing.textContent = "51 ms";
         }
-
     });
 
+    // Кнопки
+    plansButton?.addEventListener("click", openPlans);
+    devicesButton?.addEventListener("click", openDevices);
+    referralsButton?.addEventListener("click", openReferrals);
+    promoButton?.addEventListener("click", openPromo);
 
-    // =========================
-    // BUTTONS
-    // =========================
+    profileButton?.addEventListener("click", openProfile);
+    plansNavButton?.addEventListener("click", openPlans);
+    profileNavButton?.addEventListener("click", openProfile);
 
-    plansButton?.addEventListener(
-        "click",
-        openPlans
-    );
-
-    devicesButton?.addEventListener(
-        "click",
-        openDevices
-    );
-
-    referralsButton?.addEventListener(
-        "click",
-        openReferrals
-    );
-
-    promoButton?.addEventListener(
-        "click",
-        openPromo
-    );
-
-    profileButton?.addEventListener(
-        "click",
-        openProfile
-    );
-
-    plansNavButton?.addEventListener(
-        "click",
-        openPlans
-    );
-
-    profileNavButton?.addEventListener(
-        "click",
-        openProfile
-    );
-
-
-    // =========================
-    // READY
-    // =========================
-
-    console.log("VPN APP: READY");
-
+    console.log("VPN Mini App запущен");
 });
 ```
