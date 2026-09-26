@@ -17,19 +17,13 @@
     --blue: #4f8cff;
 }
 
-html {
+html,
+body {
     background: var(--bg);
 }
 
 body {
     font-family: Arial, sans-serif;
-    background:
-        radial-gradient(
-            circle at 50% -10%,
-            rgba(79, 140, 255, 0.12),
-            transparent 35%
-        ),
-        var(--bg);
     color: var(--text);
     min-height: 100vh;
     -webkit-tap-highlight-color: transparent;
@@ -48,15 +42,13 @@ button {
     width: 100%;
     max-width: 480px;
     min-height: 100vh;
-    margin: 0 auto;
+    margin: auto;
     padding: 18px;
     padding-bottom: 105px;
 }
 
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .header {
     display: flex;
@@ -68,7 +60,6 @@ button {
 .logo {
     font-size: 29px;
     font-weight: 900;
-    letter-spacing: -1px;
 }
 
 .subtitle {
@@ -88,23 +79,12 @@ button {
     color: white;
 
     font-size: 19px;
-
-    transition: 0.2s;
-}
-
-.profile-button:active {
-    transform: scale(0.94);
 }
 
 
-/* =========================
-   VPN CARD
-========================= */
+/* VPN */
 
 .vpn-card {
-    position: relative;
-    overflow: hidden;
-
     text-align: center;
 
     padding: 22px 20px 24px;
@@ -123,9 +103,6 @@ button {
             #151c26,
             #0d1219
         );
-
-    box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.25);
 }
 
 .connection-badge {
@@ -137,7 +114,7 @@ button {
 
     border-radius: 20px;
 
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255,255,255,0.04);
 
     color: var(--muted);
 
@@ -151,8 +128,6 @@ button {
     border-radius: 50%;
 
     background: #657080;
-
-    box-shadow: 0 0 8px rgba(101, 112, 128, 0.5);
 }
 
 .status-circle {
@@ -167,49 +142,32 @@ button {
 
     border-radius: 50%;
 
-    background:
-        radial-gradient(
-            circle,
-            #111821,
-            #0a0f15
-        );
+    background: #0b1017;
 
     border: 2px solid #293340;
 
-    box-shadow:
-        0 0 0 8px rgba(255,255,255,0.02),
-        inset 0 0 25px rgba(0,0,0,0.5);
-
-    transition: 0.4s;
+    transition: 0.3s;
 }
 
 .status-circle.connected {
     border-color: var(--green);
 
     box-shadow:
-        0 0 35px rgba(53, 208, 127, 0.25),
-        0 0 0 8px rgba(53, 208, 127, 0.04),
-        inset 0 0 25px rgba(53, 208, 127, 0.08);
+        0 0 35px rgba(53,208,127,0.25);
 }
 
 .power {
     font-size: 50px;
     color: #778394;
-
-    transition: 0.3s;
 }
 
 .connected .power {
     color: var(--green);
-
-    text-shadow:
-        0 0 20px rgba(53, 208, 127, 0.5);
 }
 
 .status-title {
     font-size: 23px;
     font-weight: 900;
-    letter-spacing: -0.4px;
 }
 
 .status-subtitle {
@@ -234,26 +192,17 @@ button {
 
     font-size: 13px;
     font-weight: 900;
-    letter-spacing: 0.3px;
-
-    transition: 0.2s;
-}
-
-.connect-button:active {
-    transform: scale(0.97);
 }
 
 .connect-button.connected {
     background: var(--green-dark);
     color: var(--green);
 
-    border: 1px solid rgba(53, 208, 127, 0.25);
+    border: 1px solid rgba(53,208,127,0.25);
 }
 
 
-/* =========================
-   SERVER
-========================= */
+/* SERVER */
 
 .server-card {
     margin-top: 14px;
@@ -277,7 +226,6 @@ button {
 
     font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.7px;
 }
 
 .server-name {
@@ -310,15 +258,12 @@ button {
 }
 
 
-/* =========================
-   INFO
-========================= */
+/* INFO */
 
 .info-grid {
     display: grid;
 
-    grid-template-columns:
-        repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
 
     gap: 8px;
 
@@ -351,15 +296,12 @@ button {
 }
 
 
-/* =========================
-   SPEED
-========================= */
+/* SPEED */
 
 .speed-grid {
     display: grid;
 
-    grid-template-columns:
-        1fr 1fr;
+    grid-template-columns: 1fr 1fr;
 
     gap: 9px;
 
@@ -390,7 +332,7 @@ button {
 
     border-radius: 11px;
 
-    background: rgba(79, 140, 255, 0.10);
+    background: rgba(79,140,255,0.10);
 
     color: var(--blue);
 
@@ -415,9 +357,7 @@ button {
 }
 
 
-/* =========================
-   SECTION
-========================= */
+/* SECTION */
 
 .section-header {
     margin: 25px 0 13px;
@@ -429,15 +369,12 @@ button {
 }
 
 
-/* =========================
-   MENU
-========================= */
+/* MENU */
 
 .menu-grid {
     display: grid;
 
-    grid-template-columns:
-        1fr 1fr;
+    grid-template-columns: 1fr 1fr;
 
     gap: 10px;
 }
@@ -454,19 +391,10 @@ button {
 
     background: var(--card);
     color: white;
-
-    transition:
-        transform 0.2s,
-        background 0.2s,
-        border-color 0.2s;
 }
 
 .menu-card:active {
     transform: scale(0.96);
-}
-
-.menu-card:hover {
-    background: var(--card-hover);
 }
 
 .menu-icon {
@@ -492,9 +420,7 @@ button {
 }
 
 
-/* =========================
-   REFERRAL
-========================= */
+/* REFERRAL */
 
 .referral-card {
     display: flex;
@@ -504,14 +430,14 @@ button {
     margin-top: 14px;
     padding: 18px;
 
-    border: 1px solid rgba(79, 140, 255, 0.18);
+    border: 1px solid rgba(79,140,255,0.18);
     border-radius: 21px;
 
     background:
         linear-gradient(
             145deg,
-            rgba(79, 140, 255, 0.12),
-            rgba(53, 208, 127, 0.05)
+            rgba(79,140,255,0.12),
+            rgba(53,208,127,0.05)
         );
 }
 
@@ -533,12 +459,12 @@ button {
     color: var(--muted);
 
     font-size: 11px;
+
     line-height: 1.5;
 }
 
 .referral-bottom {
     display: flex;
-    align-items: center;
     justify-content: space-between;
 
     margin-top: 10px;
@@ -552,14 +478,10 @@ button {
 
 .referral-bottom b {
     color: var(--green);
-
-    font-size: 13px;
 }
 
 
-/* =========================
-   SECURITY
-========================= */
+/* SECURITY */
 
 .security-card {
     display: flex;
@@ -570,10 +492,10 @@ button {
     margin-top: 14px;
     padding: 15px;
 
-    border: 1px solid rgba(53, 208, 127, 0.14);
+    border: 1px solid rgba(53,208,127,0.14);
     border-radius: 19px;
 
-    background: rgba(53, 208, 127, 0.04);
+    background: rgba(53,208,127,0.04);
 }
 
 .security-icon {
@@ -586,7 +508,7 @@ button {
 
     border-radius: 12px;
 
-    background: rgba(53, 208, 127, 0.08);
+    background: rgba(53,208,127,0.08);
 
     font-size: 19px;
 }
@@ -609,14 +531,10 @@ button {
     margin-left: auto;
 
     color: var(--green);
-
-    font-size: 14px;
 }
 
 
-/* =========================
-   BOTTOM NAV
-========================= */
+/* NAV */
 
 .bottom-nav {
     position: fixed;
@@ -636,7 +554,7 @@ button {
 
     padding: 10px 7px 12px;
 
-    background: rgba(10, 14, 20, 0.94);
+    background: rgba(10,14,20,0.96);
 
     border-top: 1px solid var(--border);
 
@@ -653,8 +571,6 @@ button {
     color: var(--muted);
 
     font-size: 10px;
-
-    transition: 0.2s;
 }
 
 .nav-button span {
@@ -669,14 +585,8 @@ button {
     color: white;
 }
 
-.nav-button:active {
-    transform: scale(0.92);
-}
 
-
-/* =========================
-   MOBILE
-========================= */
+/* MOBILE */
 
 @media (max-width: 360px) {
 
@@ -693,10 +603,5 @@ button {
     .status-title {
         font-size: 21px;
     }
-
-    .menu-card {
-        min-height: 108px;
-    }
-
 }
 ```
