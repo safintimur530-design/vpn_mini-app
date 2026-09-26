@@ -1,75 +1,142 @@
+```javascript
 "use strict";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
 
-    const tg = window.Telegram?.WebApp;
+    const tg = window.Telegram?.WebApp || null;
 
     if (tg) {
         tg.ready();
         tg.expand();
     }
 
-    function showMessage(message) {
+
+    function showMessage(text) {
+
         if (tg && typeof tg.showAlert === "function") {
-            tg.showAlert(message);
+            tg.showAlert(text);
         } else {
-            alert(message);
+            alert(text);
         }
+
     }
 
-    const connectButton = document.getElementById("connectButton");
-    const plansButton = document.getElementById("plansButton");
-    const devicesButton = document.getElementById("devicesButton");
-    const referralsButton = document.getElementById("referralsButton");
-    const promoButton = document.getElementById("promoButton");
 
-    const profileButton = document.getElementById("profileButton");
-    const plansNavButton = document.getElementById("plansNavButton");
-    const profileNavButton = document.getElementById("profileNavButton");
+    // =========================
+    // ELEMENTS
+    // =========================
 
-    const serverSelect = document.getElementById("serverSelect");
+    const connectButton =
+        document.getElementById("connectButton");
 
-    const statusCircle = document.getElementById("statusCircle");
-    const statusTitle = document.getElementById("statusTitle");
-    const statusSubtitle = document.getElementById("statusSubtitle");
-    const statusSmall = document.getElementById("statusSmall");
-    const statusDot = document.getElementById("statusDot");
+    const plansButton =
+        document.getElementById("plansButton");
+
+    const devicesButton =
+        document.getElementById("devicesButton");
+
+    const referralsButton =
+        document.getElementById("referralsButton");
+
+    const promoButton =
+        document.getElementById("promoButton");
+
+    const profileButton =
+        document.getElementById("profileButton");
+
+    const plansNavButton =
+        document.getElementById("plansNavButton");
+
+    const profileNavButton =
+        document.getElementById("profileNavButton");
+
+    const homeButton =
+        document.getElementById("homeButton");
+
+    const serverSelect =
+        document.getElementById("serverSelect");
+
+
+    // =========================
+    // VPN
+    // =========================
 
     let connected = false;
 
-    // VPN
-    connectButton?.addEventListener("click", () => {
+
+    connectButton?.addEventListener("click", function () {
 
         connected = !connected;
+
+
+        const statusCircle =
+            document.getElementById("statusCircle");
+
+        const statusTitle =
+            document.getElementById("statusTitle");
+
+        const statusSubtitle =
+            document.getElementById("statusSubtitle");
+
+        const statusSmall =
+            document.getElementById("statusSmall");
+
+        const statusDot =
+            document.getElementById("statusDot");
+
 
         if (connected) {
 
             statusCircle?.classList.add("connected");
+
             connectButton.classList.add("connected");
 
-            connectButton.textContent = "ОТКЛЮЧИТЬ";
-            statusTitle.textContent = "VPN подключён";
-            statusSubtitle.textContent = "Соединение защищено";
-            statusSmall.textContent = "Подключено";
+            connectButton.textContent =
+                "ОТКЛЮЧИТЬ";
 
-            statusDot.style.background = "#35d07f";
+            statusTitle.textContent =
+                "VPN подключён";
+
+            statusSubtitle.textContent =
+                "Соединение защищено";
+
+            statusSmall.textContent =
+                "Подключено";
+
+            statusDot.style.background =
+                "#35d07f";
 
         } else {
 
             statusCircle?.classList.remove("connected");
+
             connectButton.classList.remove("connected");
 
-            connectButton.textContent = "ПОДКЛЮЧИТЬ";
-            statusTitle.textContent = "VPN отключён";
-            statusSubtitle.textContent = "Твой интернет не защищён";
-            statusSmall.textContent = "Не подключено";
+            connectButton.textContent =
+                "ПОДКЛЮЧИТЬ";
 
-            statusDot.style.background = "#657080";
+            statusTitle.textContent =
+                "VPN отключён";
+
+            statusSubtitle.textContent =
+                "Твой интернет не защищён";
+
+            statusSmall.textContent =
+                "Не подключено";
+
+            statusDot.style.background =
+                "#657080";
+
         }
+
     });
 
-    // Подписка
-    plansButton?.addEventListener("click", () => {
+
+    // =========================
+    // PLANS
+    // =========================
+
+    plansButton?.addEventListener("click", function () {
 
         showMessage(
             "💳 ТАРИФЫ\n\n" +
@@ -80,8 +147,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    // Устройства
-    devicesButton?.addEventListener("click", () => {
+
+    plansNavButton?.addEventListener("click", function () {
+
+        showMessage(
+            "💳 ТАРИФЫ\n\n" +
+            "7 дней — 199 ₽\n" +
+            "30 дней — 499 ₽\n" +
+            "90 дней — 1199 ₽"
+        );
+
+    });
+
+
+    // =========================
+    // DEVICES
+    // =========================
+
+    devicesButton?.addEventListener("click", function () {
 
         showMessage(
             "📱 УСТРОЙСТВА\n\n" +
@@ -90,8 +173,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    // Рефералы
-    referralsButton?.addEventListener("click", () => {
+
+    // =========================
+    // REFERRALS
+    // =========================
+
+    referralsButton?.addEventListener("click", function () {
 
         showMessage(
             "🎁 РЕФЕРАЛЫ\n\n" +
@@ -100,8 +187,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    // Промокод
-    promoButton?.addEventListener("click", () => {
+
+    // =========================
+    // PROMO
+    // =========================
+
+    promoButton?.addEventListener("click", function () {
 
         showMessage(
             "🎟 ПРОМОКОД\n\n" +
@@ -110,87 +201,133 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-    // Профиль
-    profileButton?.addEventListener("click", () => {
 
-        const user = tg?.initDataUnsafe?.user;
+    // =========================
+    // PROFILE
+    // =========================
+
+    function openProfile() {
+
+        const user =
+            tg?.initDataUnsafe?.user;
+
 
         if (!user) {
 
             showMessage(
                 "👤 ПРОФИЛЬ\n\n" +
-                "Данные Telegram пока недоступны."
+                "Данные Telegram недоступны."
             );
 
             return;
         }
 
+
+        const name =
+            user.first_name || "Пользователь";
+
+
+        const username =
+            user.username
+                ? "@" + user.username
+                : "—";
+
+
         showMessage(
             "👤 ПРОФИЛЬ\n\n" +
             "Имя: " +
-            (user.first_name || "—") +
-            "\n\nUsername: " +
-            (user.username ? "@" + user.username : "—") +
-            "\n\nID: " +
+            name +
+            "\n\n" +
+            "Username: " +
+            username +
+            "\n\n" +
+            "ID: " +
             user.id
         );
 
+    }
+
+
+    profileButton?.addEventListener(
+        "click",
+        openProfile
+    );
+
+
+    profileNavButton?.addEventListener(
+        "click",
+        openProfile
+    );
+
+
+    // =========================
+    // HOME
+    // =========================
+
+    homeButton?.addEventListener("click", function () {
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
     });
 
-    // Нижнее меню
-    plansNavButton?.addEventListener("click", () => {
 
-        showMessage(
-            "💳 ТАРИФЫ\n\n" +
-            "7 дней — 199 ₽\n" +
-            "30 дней — 499 ₽\n" +
-            "90 дней — 1199 ₽"
-        );
+    // =========================
+    // SERVERS
+    // =========================
 
-    });
+    serverSelect?.addEventListener("change", function () {
 
-    profileNavButton?.addEventListener("click", () => {
+        const serverName =
+            document.getElementById("serverName");
 
-        const user = tg?.initDataUnsafe?.user;
+        const serverPing =
+            document.getElementById("serverPing");
 
-        if (!user) {
-            showMessage("👤 Данные Telegram недоступны.");
+
+        if (!serverName || !serverPing) {
             return;
         }
 
-        showMessage(
-            "👤 ПРОФИЛЬ\n\n" +
-            "Имя: " + (user.first_name || "—") +
-            "\nUsername: " +
-            (user.username ? "@" + user.username : "—") +
-            "\nID: " + user.id
-        );
-
-    });
-
-    // Смена сервера
-    serverSelect?.addEventListener("change", () => {
-
-        const serverName = document.getElementById("serverName");
-        const serverPing = document.getElementById("serverPing");
-
-        if (!serverName || !serverPing) return;
 
         if (serverSelect.value === "germany") {
-            serverName.textContent = "🇩🇪 Германия";
-            serverPing.textContent = "38 ms";
+
+            serverName.textContent =
+                "🇩🇪 Германия";
+
+            serverPing.textContent =
+                "38 ms";
+
         }
+
 
         if (serverSelect.value === "netherlands") {
-            serverName.textContent = "🇳🇱 Нидерланды";
-            serverPing.textContent = "42 ms";
+
+            serverName.textContent =
+                "🇳🇱 Нидерланды";
+
+            serverPing.textContent =
+                "42 ms";
+
         }
 
+
         if (serverSelect.value === "finland") {
-            serverName.textContent = "🇫🇮 Финляндия";
-            serverPing.textContent = "51 ms";
+
+            serverName.textContent =
+                "🇫🇮 Финляндия";
+
+            serverPing.textContent =
+                "51 ms";
+
         }
 
     });
 
+
+    console.log("Mountain VPN: APP READY");
+
 });
+```
