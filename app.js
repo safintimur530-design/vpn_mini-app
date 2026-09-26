@@ -3,21 +3,15 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
-let currentUser = null;
-let connected = false;
-
-
-// ================================
-// API
-// ================================
-
 const API_BASE = "https://circus-interim-simon-italiano.trycloudflare.com";
+
 
 async function api(url, options = {}) {
 
     try {
 
-        const response = await fetch(url, {
+        const response = await fetch(API_BASE + url, {
+
             ...options,
 
             headers: {
@@ -25,28 +19,34 @@ async function api(url, options = {}) {
                 "X-Telegram-Init-Data": tg.initData,
                 ...(options.headers || {})
             }
+
         });
 
-        return await response.json();
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Ошибка сервера");
+        }
+
+        return data;
 
     } catch (error) {
 
         console.error("API ERROR:", error);
 
         tg.showAlert(
-            "❌ Не удалось подключиться к серверу"
+            "❌ Не удалось подключиться к серверу.\n\n" +
+            "Попробуй ещё раз."
         );
 
-        return {
-            success: false
-        };
+        return null;
     }
 }
 
 
-// ================================
-// AUTH
-// ================================
+/* =========================
+   АВТОРИЗАЦИЯ
+========================= */
 
 async function login() {
 
@@ -54,334 +54,276 @@ async function login() {
         method: "POST"
     });
 
-    console.log("AUTH:", result);
-
-    if (!result.success) {
-
-        tg.showAlert(
-            "❌ Ошибка авторизации\n\n" +
-            result.error
-        );
-
-        return;
+    if (!result || !result.success) {
+        console.log("Авторизация не выполнена");
+        return null;
     }
 
-    currentUser = result.user;
+    console.log("✅ Авторизация успешна");
 
-    await loadProfile();
-
-    console.log("✅ Пользователь авторизован");
+    return result;
 }
 
 
-// ================================
-// PROFILE
-// ================================
+/* =========================
+   ПРОФИЛЬ
+========================= */
 
 async function loadProfile() {
 
     const result = await api("/api/profile");
 
-    if (!result.success) {
+    if (!result || !result.success) {
+        return null;
+    }
+
+    console.log("Профиль:", result);
+
+    return result;
+}
+
+
+/* =========================
+   VPN
+========================= */
+
+let vpnConnected = false;
+
+
+async function connectVPN() {
+
+    const button = document.querySelector(".connect-button");
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "ЗАГРУЗКА...";
+    }
+
+    const profile = await loadProfile();
+
+    if (!profile) {
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "ПОДКЛЮЧИТЬ";
+        }
+
         return;
     }
 
-    currentUser = result.user;
+    vpnConnected = !vpnConnected;
 
-    console.log("PROFILE:", result);
+    updateVPNStatus();
 
-    const subscription = result.subscription;
-
-    const subscriptionElement =
-        document.querySelector(".info-item strong");
-
-    if (subscriptionElement) {
-
-        if (subscription) {
-
-            const date = new Date(
-                subscription.expires_at * 1000
-            );
-
-            subscriptionElement.textContent =
-                "Активна до " +
-                date.toLocaleDateString("ru-RU");
-
-        } else {
-
-            subscriptionElement.textContent =
-                "Не активна";
-        }
+    if (button) {
+        button.disabled = false;
     }
 }
 
 
-// ================================
-// VPN
-// ================================
+function updateVPNStatus() {
 
-function connectVPN() {
+    const circle = document.getElementById("statusCircle");
+    const title = document.getElementById("statusTitle");
+    const subtitle = document.getElementById("statusSubtitle");
+    const button = document.querySelector(".connect-button");
 
-    if (!currentUser) {
+    if (vpnConnected) {
 
-        tg.showAlert(
-            "⏳ Загружаем профиль..."
-        );
-
-        return;
-    }
-
-    if (connected) {
-
-        connected = false;
-
-        updateVPNStatus(false);
-
-        return;
-    }
-
-    tg.showConfirm(
-        "🔐 Подключить VPN?\n\n" +
-        "Сейчас будет создано VPN-соединение.",
-        function (confirmed) {
-
-            if (!confirmed) {
-                return;
-            }
-
-            /*
-             * Пока здесь демонстрационное подключение.
-             *
-             * Настоящий WireGuard подключим
-             * на следующем этапе.
-             */
-
-            connected = true;
-
-            updateVPNStatus(true);
+        if (circle) {
+            circle.classList.add("connected");
         }
-    );
-}
-
-
-// ================================
-// VPN STATUS
-// ================================
-
-function updateVPNStatus(isConnected) {
-
-    const title =
-        document.getElementById("statusTitle");
-
-    const subtitle =
-        document.getElementById("statusSubtitle");
-
-    const button =
-        document.querySelector(".connect-button");
-
-    const circle =
-        document.getElementById("statusCircle");
-
-
-    if (isConnected) {
 
         if (title) {
             title.textContent = "VPN подключён";
         }
 
         if (subtitle) {
-            subtitle.textContent =
-                "Ваше соединение защищено";
+            subtitle.textContent = "Соединение защищено";
         }
 
         if (button) {
             button.textContent = "ОТКЛЮЧИТЬ";
         }
 
-        if (circle) {
-            circle.classList.add("connected");
-        }
-
     } else {
+
+        if (circle) {
+            circle.classList.remove("connected");
+        }
 
         if (title) {
             title.textContent = "VPN отключён";
         }
 
         if (subtitle) {
-            subtitle.textContent =
-                "Нажми, чтобы подключиться";
+            subtitle.textContent = "Нажми, чтобы подключиться";
         }
 
         if (button) {
             button.textContent = "ПОДКЛЮЧИТЬ";
         }
-
-        if (circle) {
-            circle.classList.remove("connected");
-        }
     }
 }
 
 
-// ================================
-// SERVERS
-// ================================
+/* =========================
+   СЕРВЕР
+========================= */
 
 function changeServer() {
 
-    const select =
-        document.getElementById("serverSelect");
+    const select = document.getElementById("serverSelect");
 
-    const serverName =
-        document.getElementById("serverName");
+    const serverName = document.getElementById("serverName");
 
-    const serverPing =
-        document.getElementById("serverPing");
-
+    const serverPing = document.getElementById("serverPing");
 
     if (!select) {
         return;
     }
 
+    const server = select.value;
 
-    const servers = {
 
-        germany: {
-            name: "🇩🇪 Германия",
-            ping: "38 ms"
-        },
+    if (server === "germany") {
 
-        netherlands: {
-            name: "🇳🇱 Нидерланды",
-            ping: "42 ms"
-        },
-
-        finland: {
-            name: "🇫🇮 Финляндия",
-            ping: "51 ms"
+        if (serverName) {
+            serverName.textContent = "🇩🇪 Германия";
         }
-    };
 
+        if (serverPing) {
+            serverPing.textContent = "38 ms";
+        }
 
-    const server =
-        servers[select.value];
-
-
-    if (!server) {
-        return;
     }
 
 
-    if (serverName) {
-        serverName.textContent =
-            server.name;
+    if (server === "netherlands") {
+
+        if (serverName) {
+            serverName.textContent = "🇳🇱 Нидерланды";
+        }
+
+        if (serverPing) {
+            serverPing.textContent = "42 ms";
+        }
+
     }
 
-    if (serverPing) {
-        serverPing.textContent =
-            server.ping;
+
+    if (server === "finland") {
+
+        if (serverName) {
+            serverName.textContent = "🇫🇮 Финляндия";
+        }
+
+        if (serverPing) {
+            serverPing.textContent = "45 ms";
+        }
+
     }
 }
 
 
-// ================================
-// PLANS
-// ================================
+/* =========================
+   ПОДПИСКА
+========================= */
 
 async function openPlans() {
 
-    const result =
-        await api("/api/plans");
+    const result = await api("/api/plans");
 
-    if (!result.success) {
+    if (!result || !result.success) {
         return;
     }
 
-
     const plans = result.plans;
 
+    let text = "💳 Тарифы VPN\n\n";
 
-    let text =
-        "💳 ТАРИФЫ\n\n";
+    if (plans.week) {
 
+        text +=
+            `7 дней — ${plans.week.price} ₽\n`;
+    }
 
-    text +=
-        `7 дней — ${plans.week.price} ₽\n`;
+    if (plans.month) {
 
-    text +=
-        `30 дней — ${plans.month.price} ₽\n`;
+        text +=
+            `30 дней — ${plans.month.price} ₽\n`;
+    }
 
-    text +=
-        `90 дней — ${plans.three_months.price} ₽\n\n`;
+    if (plans.three_months) {
 
-    text +=
-        "Выбери тариф для покупки.";
+        text +=
+            `90 дней — ${plans.three_months.price} ₽\n`;
+    }
 
+    text += "\nВыбери тариф для покупки.";
 
     tg.showPopup({
-
         title: "💳 Подписка",
-
         message: text,
-
         buttons: [
-
             {
                 id: "week",
                 type: "default",
                 text: "7 дней"
             },
-
             {
                 id: "month",
                 type: "default",
                 text: "30 дней"
             },
-
             {
                 id: "three_months",
                 type: "default",
                 text: "90 дней"
             },
-
             {
-                type: "cancel"
+                id: "close",
+                type: "cancel",
+                text: "Закрыть"
             }
         ]
+    }, async function (buttonId) {
 
-    }, function (buttonId) {
-
-        if (!buttonId) {
+        if (buttonId === "close") {
             return;
         }
 
-        createPayment(buttonId);
+        await createPayment(buttonId);
     });
 }
 
 
-// ================================
-// PAYMENT
-// ================================
+/* =========================
+   СОЗДАНИЕ ПЛАТЕЖА
+========================= */
 
 async function createPayment(plan) {
 
-    const result =
-        await api("/api/payment/create", {
+    const result = await api("/api/payment/create", {
 
-            method: "POST",
+        method: "POST",
 
-            body: JSON.stringify({
-                plan
-            })
-        });
+        body: JSON.stringify({
+            plan: plan
+        })
+
+    });
+
+
+    if (!result) {
+        return;
+    }
 
 
     if (!result.success) {
 
         tg.showAlert(
-            "❌ Не удалось создать оплату"
+            result.message || "Не удалось создать платёж."
         );
 
         return;
@@ -389,181 +331,92 @@ async function createPayment(plan) {
 
 
     tg.showAlert(
-
-        "💳 Заказ создан!\n\n" +
-
-        "Тариф: " +
-        result.plan +
-        "\n\n" +
-
-        "Сумма: " +
-        result.amount +
-        " ₽\n\n" +
-
-        "ID платежа: " +
-        result.paymentId
+        "💳 Платёж создан.\n\n" +
+        "Система оплаты будет подключена следующим этапом."
     );
 }
 
 
-// ================================
-// REFERRALS
-// ================================
+/* =========================
+   РЕФЕРАЛЫ
+========================= */
 
 async function openReferrals() {
 
-    const result =
-        await api("/api/referrals");
+    const result = await api("/api/referrals");
 
-
-    if (!result.success) {
+    if (!result || !result.success) {
         return;
     }
-
-
-    tg.showPopup({
-
-        title: "🎁 Реферальная программа",
-
-        message:
-
-            "Приглашай друзей и получай бонусы.\n\n" +
-
-            "👥 Приглашено: " +
-            result.count +
-            "\n\n" +
-
-            "💰 Заработано: " +
-            result.totalReward +
-            " ₽\n\n" +
-
-            "🔗 Твоя ссылка:\n" +
-            result.referralLink,
-
-        buttons: [
-
-            {
-                id: "copy",
-                type: "default",
-                text: "Скопировать"
-            },
-
-            {
-                type: "close"
-            }
-        ]
-
-    }, function (buttonId) {
-
-        if (buttonId === "copy") {
-
-            navigator.clipboard
-                .writeText(result.referralLink)
-                .then(() => {
-
-                    tg.showAlert(
-                        "✅ Ссылка скопирована!"
-                    );
-
-                })
-                .catch(() => {
-
-                    tg.showAlert(
-                        result.referralLink
-                    );
-                });
-        }
-    });
-}
-
-
-// ================================
-// PROFILE WINDOW
-// ================================
-
-async function openProfile() {
-
-    const result =
-        await api("/api/profile");
-
-
-    if (!result.success) {
-        return;
-    }
-
-
-    const user =
-        result.user;
-
 
     let text =
-        "👤 ПРОФИЛЬ\n\n";
-
-
-    text +=
-        "Имя: " +
-        (user.first_name || "—") +
-        "\n";
-
-
-    text +=
-        "ID: " +
-        user.id +
-        "\n";
-
-
-    text +=
-        "Баланс: " +
-        user.balance +
-        " ₽\n\n";
-
-
-    if (result.subscription) {
-
-        const date =
-            new Date(
-                result.subscription.expires_at * 1000
-            );
-
-        text +=
-            "💎 Подписка: активна\n";
-
-        text +=
-            "До: " +
-            date.toLocaleDateString("ru-RU");
-
-    } else {
-
-        text +=
-            "💎 Подписка: не активна";
-    }
-
+        "🎁 Реферальная система\n\n" +
+        `Приглашено: ${result.referrals || 0}\n` +
+        `Скидка: ${result.discount || 0}%`;
 
     tg.showAlert(text);
 }
 
 
-// ================================
-// DEVICES
-// ================================
+/* =========================
+   ПРОФИЛЬ
+========================= */
 
-function openDevices() {
+async function openProfile() {
+
+    const result = await api("/api/profile");
+
+    if (!result || !result.success) {
+        return;
+    }
+
+    const user = result.user || result;
+
+    const name =
+        user.first_name ||
+        user.username ||
+        "Пользователь";
+
+    const username =
+        user.username
+            ? "@" + user.username
+            : "нет";
+
+    const balance =
+        user.balance !== undefined
+            ? user.balance + " ₽"
+            : "0 ₽";
 
     tg.showAlert(
 
-        "📱 Устройства\n\n" +
+        "👤 Профиль\n\n" +
 
-        "Подключено: 0 / 3\n\n" +
+        `Имя: ${name}\n` +
 
-        "Управление устройствами\n" +
-        "подключим после WireGuard."
+        `Username: ${username}\n` +
+
+        `Баланс: ${balance}`
+
     );
 }
 
 
-// ================================
-// PROMO
-// ================================
+/* =========================
+   УСТРОЙСТВА
+========================= */
+
+function openDevices() {
+
+    tg.showAlert(
+        "📱 Устройства\n\n" +
+        "Максимальное количество устройств: 3."
+    );
+}
+
+
+/* =========================
+   ПРОМОКОД
+========================= */
 
 function openPromo() {
 
@@ -571,48 +424,45 @@ function openPromo() {
 
         title: "🎟 Промокод",
 
-        message: "Введи промокод:",
+        message: "Введи промокод.",
 
         buttons: [
-
             {
-                id: "enter",
-                type: "default",
-                text: "Ввести"
-            },
-
-            {
-                type: "cancel"
+                id: "close",
+                type: "cancel",
+                text: "Закрыть"
             }
         ]
 
-    }, function (buttonId) {
-
-        if (buttonId === "enter") {
-
-            tg.showAlert(
-                "🎟 Система промокодов будет подключена следующим этапом."
-            );
-        }
     });
 }
 
 
-// ================================
-// START
-// ================================
+/* =========================
+   ЗАПУСК
+========================= */
 
 async function startApp() {
 
-    console.log("🚀 VPN Mini App");
-
-    await login();
+    console.log("🚀 Mini App запускается...");
 
     console.log(
-        "✅ Mini App готов"
+        "Telegram initData:",
+        tg.initData ? "получен" : "отсутствует"
     );
+
+    const result = await login();
+
+    if (result) {
+
+        await loadProfile();
+
+    }
+
+    updateVPNStatus();
+
+    console.log("✅ Mini App готов");
 }
 
 
 startApp();
-console.log("🔥 НОВАЯ ВЕРСИЯ APP.JS ЗАГРУЖЕНА");
