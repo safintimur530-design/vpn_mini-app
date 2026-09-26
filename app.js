@@ -54,7 +54,8 @@ async function api(url, options = {}) {
 // =========================
 
 async function login() {
-    const data = await api("/api/auth", {
+    tg.showAlert("ТЕСТ: openPlans запустился");
+const data = await api("/api/plans");
         method: "POST"
     });
 
