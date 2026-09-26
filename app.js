@@ -1,4 +1,3 @@
-```javascript
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,6 +7,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tg) {
         tg.ready();
         tg.expand();
+    }
+
+    function showMessage(message) {
+        if (tg && typeof tg.showAlert === "function") {
+            tg.showAlert(message);
+        } else {
+            alert(message);
+        }
     }
 
     const connectButton = document.getElementById("connectButton");
@@ -29,14 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const statusDot = document.getElementById("statusDot");
 
     let connected = false;
-
-    function showMessage(message) {
-        if (tg && typeof tg.showAlert === "function") {
-            tg.showAlert(message);
-        } else {
-            alert(message);
-        }
-    }
 
     // VPN
     connectButton?.addEventListener("click", () => {
@@ -70,25 +69,59 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Подписка
-    function openPlans() {
+    plansButton?.addEventListener("click", () => {
+
         showMessage(
             "💳 ТАРИФЫ\n\n" +
             "7 дней — 199 ₽\n" +
             "30 дней — 499 ₽\n" +
             "90 дней — 1199 ₽"
         );
-    }
+
+    });
+
+    // Устройства
+    devicesButton?.addEventListener("click", () => {
+
+        showMessage(
+            "📱 УСТРОЙСТВА\n\n" +
+            "Подключено: 0 / 3"
+        );
+
+    });
+
+    // Рефералы
+    referralsButton?.addEventListener("click", () => {
+
+        showMessage(
+            "🎁 РЕФЕРАЛЫ\n\n" +
+            "Приглашай друзей и получай скидку."
+        );
+
+    });
+
+    // Промокод
+    promoButton?.addEventListener("click", () => {
+
+        showMessage(
+            "🎟 ПРОМОКОД\n\n" +
+            "Функция промокодов будет добавлена позже."
+        );
+
+    });
 
     // Профиль
-    function openProfile() {
+    profileButton?.addEventListener("click", () => {
 
         const user = tg?.initDataUnsafe?.user;
 
         if (!user) {
+
             showMessage(
                 "👤 ПРОФИЛЬ\n\n" +
                 "Данные Telegram пока недоступны."
             );
+
             return;
         }
 
@@ -101,40 +134,45 @@ document.addEventListener("DOMContentLoaded", () => {
             "\n\nID: " +
             user.id
         );
-    }
 
-    // Устройства
-    function openDevices() {
+    });
+
+    // Нижнее меню
+    plansNavButton?.addEventListener("click", () => {
+
         showMessage(
-            "📱 УСТРОЙСТВА\n\n" +
-            "Подключено: 0 / 3"
+            "💳 ТАРИФЫ\n\n" +
+            "7 дней — 199 ₽\n" +
+            "30 дней — 499 ₽\n" +
+            "90 дней — 1199 ₽"
         );
-    }
 
-    // Рефералы
-    function openReferrals() {
+    });
+
+    profileNavButton?.addEventListener("click", () => {
+
+        const user = tg?.initDataUnsafe?.user;
+
+        if (!user) {
+            showMessage("👤 Данные Telegram недоступны.");
+            return;
+        }
+
         showMessage(
-            "🎁 РЕФЕРАЛЫ\n\n" +
-            "Приглашай друзей и получай скидку."
+            "👤 ПРОФИЛЬ\n\n" +
+            "Имя: " + (user.first_name || "—") +
+            "\nUsername: " +
+            (user.username ? "@" + user.username : "—") +
+            "\nID: " + user.id
         );
-    }
 
-    // Промокод
-    function openPromo() {
-        showMessage(
-            "🎟 ПРОМОКОД\n\n" +
-            "Функция промокодов будет добавлена позже."
-        );
-    }
+    });
 
-    // Сервер
+    // Смена сервера
     serverSelect?.addEventListener("change", () => {
 
-        const serverName =
-            document.getElementById("serverName");
-
-        const serverPing =
-            document.getElementById("serverPing");
+        const serverName = document.getElementById("serverName");
+        const serverPing = document.getElementById("serverPing");
 
         if (!serverName || !serverPing) return;
 
@@ -152,18 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
             serverName.textContent = "🇫🇮 Финляндия";
             serverPing.textContent = "51 ms";
         }
+
     });
 
-    // Кнопки
-    plansButton?.addEventListener("click", openPlans);
-    devicesButton?.addEventListener("click", openDevices);
-    referralsButton?.addEventListener("click", openReferrals);
-    promoButton?.addEventListener("click", openPromo);
-
-    profileButton?.addEventListener("click", openProfile);
-    plansNavButton?.addEventListener("click", openPlans);
-    profileNavButton?.addEventListener("click", openProfile);
-
-    console.log("VPN Mini App запущен");
 });
-```
