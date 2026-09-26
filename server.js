@@ -9,7 +9,11 @@ const app = express();
 const db = new Database("database.db");
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: true,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "X-Telegram-Init-Data"]
+}));
 app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
