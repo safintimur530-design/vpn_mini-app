@@ -11,6 +11,8 @@ let connected = false;
 // API
 // ================================
 
+const API_BASE = "https://alberta-both-universe-ctrl.trycloudflare.com";
+
 async function api(url, options = {}) {
 
     try {
