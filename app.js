@@ -9,7 +9,7 @@ tg.expand();
 // НАСТРОЙКИ
 // ===============================
 
-const API_URL = "https://circus-interim-simon-italiano.trycloudflare.com";
+const API_URL = "https://wheat-suspension-already-jenny.trycloudflare.com";
 
 
 // ===============================
