@@ -1,30 +1,34 @@
-```javascript
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram?.WebApp;
 
-tg.ready();
-tg.expand();
+if (tg) {
+    tg.ready();
+    tg.expand();
+}
 
 
 // ===============================
 // НАСТРОЙКИ
 // ===============================
 
-const API_URL = "https://wheat-suspension-already-jenny.trycloudflare.com";
+const API_URL =
+    "https://wheat-suspension-already-jenny.trycloudflare.com";
 
 
 // ===============================
 // TELEGRAM USER
 // ===============================
 
-const user = tg.initDataUnsafe?.user || null;
+const user =
+    tg?.initDataUnsafe?.user || null;
 
 
 // ===============================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// УВЕДОМЛЕНИЕ
 // ===============================
 
 function showMessage(text) {
-    if (tg.showAlert) {
+
+    if (tg && typeof tg.showAlert === "function") {
         tg.showAlert(text);
     } else {
         alert(text);
@@ -37,6 +41,7 @@ function showMessage(text) {
 // ===============================
 
 let vpnConnected = false;
+
 
 function connectVPN() {
 
@@ -56,13 +61,14 @@ function connectVPN() {
         document.getElementById("connectText").textContent =
             "ОТКЛЮЧИТЬ";
 
-        document.querySelector(".status-dot").style.background =
-            "#35e27d";
+        const dot =
+            document.getElementById("statusDot");
 
-        document.querySelector(".status-dot").style.boxShadow =
+        dot.style.background = "#35e27d";
+        dot.style.boxShadow =
             "0 0 10px rgba(53,226,125,.7)";
 
-        showMessage("🔐 VPN подключён");
+        showMessage("🏔️ Mountain VPN подключён");
 
     } else {
 
@@ -80,13 +86,14 @@ function connectVPN() {
         document.getElementById("connectText").textContent =
             "ПОДКЛЮЧИТЬ";
 
-        document.querySelector(".status-dot").style.background =
-            "#ff5364";
+        const dot =
+            document.getElementById("statusDot");
 
-        document.querySelector(".status-dot").style.boxShadow =
+        dot.style.background = "#ff5364";
+        dot.style.boxShadow =
             "0 0 10px rgba(255,83,100,.6)";
 
-        showMessage("VPN отключён");
+        showMessage("Mountain VPN отключён");
     }
 }
 
@@ -98,12 +105,12 @@ function connectVPN() {
 function openPlans() {
 
     showMessage(
-        "💳 ПОДПИСКА\n\n" +
+        "💳 MOUNTAIN VPN\n\n" +
+        "Тарифы:\n\n" +
         "1 месяц — 150 ₽\n" +
         "3 месяца — 399 ₽\n" +
         "6 месяцев — 699 ₽\n" +
-        "12 месяцев — 1100 ₽\n\n" +
-        "Выберите тариф в следующей версии."
+        "12 месяцев — 1100 ₽"
     );
 }
 
@@ -114,13 +121,14 @@ function openPlans() {
 
 function openReferrals() {
 
-    const telegramId = user?.id || "не определён";
+    const id =
+        user?.id || "не определён";
 
     showMessage(
         "👥 РЕФЕРАЛЫ\n\n" +
-        "Приглашайте друзей и получайте бонусы.\n\n" +
+        "Приглашайте друзей в Mountain VPN.\n\n" +
         "Ваш Telegram ID:\n" +
-        telegramId
+        id
     );
 }
 
@@ -143,7 +151,6 @@ function openProfile() {
 
     const name =
         user.first_name ||
-        user.username ||
         "Пользователь";
 
     const username =
@@ -152,7 +159,7 @@ function openProfile() {
             : "не указан";
 
     showMessage(
-        "👤 ПРОФИЛЬ\n\n" +
+        "👤 MOUNTAIN VPN\n\n" +
         "Имя: " + name + "\n" +
         "Username: " + username + "\n" +
         "ID: " + user.id
@@ -168,20 +175,42 @@ function openDevices() {
 
     showMessage(
         "📱 УСТРОЙСТВА\n\n" +
-        "Пока подключённых устройств нет.\n\n" +
+        "Подключённых устройств пока нет.\n\n" +
         "После подключения WireGuard\n" +
-        "здесь появится список устройств."
+        "здесь появятся ваши устройства."
     );
 }
 
 
 // ===============================
-// ПРИ ЗАПУСКЕ
+// КНОПКИ
 // ===============================
 
-console.log("NEXUS VPN Mini App запущен");
+document.addEventListener("DOMContentLoaded", () => {
 
-console.log("Telegram user:", user);
+    document
+        .getElementById("connectButton")
+        .addEventListener("click", connectVPN);
 
-console.log("API:", API_URL);
-```
+    document
+        .getElementById("plansButton")
+        .addEventListener("click", openPlans);
+
+    document
+        .getElementById("referralsButton")
+        .addEventListener("click", openReferrals);
+
+    document
+        .getElementById("devicesButton")
+        .addEventListener("click", openDevices);
+
+    document
+        .getElementById("profileButton")
+        .addEventListener("click", openProfile);
+
+    document
+        .getElementById("profileCardButton")
+        .addEventListener("click", openProfile);
+
+    console.log("Mountain VPN Mini App loaded");
+});
