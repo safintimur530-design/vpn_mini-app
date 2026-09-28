@@ -1,12 +1,15 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>VPN</title>
+    <meta name="viewport"
+          content="width=device-width,
+          initial-scale=1.0,
+          maximum-scale=1.0,
+          user-scalable=no">
+
+    <title>Mountain VPN</title>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -19,11 +22,11 @@
 
     <header class="top">
         <div>
-            <div class="brand">NEXUS</div>
-            <div class="subtitle">Private VPN</div>
+            <div class="brand">MOUNTAIN VPN</div>
+            <div class="subtitle">Private connection</div>
         </div>
 
-        <button class="profile-btn" onclick="openProfile()">
+        <button class="profile-btn" id="profileButton">
             👤
         </button>
     </header>
@@ -34,7 +37,7 @@
         <section class="connection-card">
 
             <div class="status-label">
-                <span class="status-dot"></span>
+                <span class="status-dot" id="statusDot"></span>
                 <span id="statusText">VPN отключён</span>
             </div>
 
@@ -51,7 +54,7 @@
                 для безопасного доступа в интернет
             </p>
 
-            <button class="connect-btn" onclick="connectVPN()">
+            <button class="connect-btn" id="connectButton">
                 <span id="connectText">ПОДКЛЮЧИТЬ</span>
             </button>
 
@@ -60,32 +63,39 @@
 
         <section class="info-grid">
 
-            <button class="menu-card" onclick="openPlans()">
+            <button class="menu-card" id="plansButton">
                 <div class="card-icon">💳</div>
+
                 <div>
                     <strong>Подписка</strong>
                     <span>Выбрать тариф</span>
                 </div>
             </button>
 
-            <button class="menu-card" onclick="openReferrals()">
+
+            <button class="menu-card" id="referralsButton">
                 <div class="card-icon">👥</div>
+
                 <div>
                     <strong>Рефералы</strong>
                     <span>Пригласить друзей</span>
                 </div>
             </button>
 
-            <button class="menu-card" onclick="openDevices()">
+
+            <button class="menu-card" id="devicesButton">
                 <div class="card-icon">📱</div>
+
                 <div>
                     <strong>Устройства</strong>
                     <span>Мои подключения</span>
                 </div>
             </button>
 
-            <button class="menu-card" onclick="openProfile()">
+
+            <button class="menu-card" id="profileCardButton">
                 <div class="card-icon">👤</div>
+
                 <div>
                     <strong>Профиль</strong>
                     <span>Мой аккаунт</span>
@@ -98,7 +108,7 @@
 
 
     <footer>
-        <span>🔐 NEXUS VPN</span>
+        <span>🏔️ MOUNTAIN VPN</span>
         <span>Secure connection</span>
     </footer>
 
@@ -109,4 +119,3 @@
 
 </body>
 </html>
-```
