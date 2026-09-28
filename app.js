@@ -1,333 +1,187 @@
 ```javascript
-"use strict";
+const tg = window.Telegram.WebApp;
 
-document.addEventListener("DOMContentLoaded", function () {
+tg.ready();
+tg.expand();
 
-    const tg = window.Telegram?.WebApp || null;
 
-    if (tg) {
-        tg.ready();
-        tg.expand();
+// ===============================
+// НАСТРОЙКИ
+// ===============================
+
+const API_URL = "https://circus-interim-simon-italiano.trycloudflare.com";
+
+
+// ===============================
+// TELEGRAM USER
+// ===============================
+
+const user = tg.initDataUnsafe?.user || null;
+
+
+// ===============================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ===============================
+
+function showMessage(text) {
+    if (tg.showAlert) {
+        tg.showAlert(text);
+    } else {
+        alert(text);
     }
+}
 
 
-    function showMessage(text) {
+// ===============================
+// VPN
+// ===============================
 
-        if (tg && typeof tg.showAlert === "function") {
-            tg.showAlert(text);
-        } else {
-            alert(text);
-        }
+let vpnConnected = false;
 
+function connectVPN() {
+
+    if (!vpnConnected) {
+
+        vpnConnected = true;
+
+        document.getElementById("statusText").textContent =
+            "VPN подключён";
+
+        document.getElementById("connectionTitle").textContent =
+            "Соединение защищено";
+
+        document.getElementById("connectionDescription").innerHTML =
+            "Ваш интернет защищён<br>соединение активно";
+
+        document.getElementById("connectText").textContent =
+            "ОТКЛЮЧИТЬ";
+
+        document.querySelector(".status-dot").style.background =
+            "#35e27d";
+
+        document.querySelector(".status-dot").style.boxShadow =
+            "0 0 10px rgba(53,226,125,.7)";
+
+        showMessage("🔐 VPN подключён");
+
+    } else {
+
+        vpnConnected = false;
+
+        document.getElementById("statusText").textContent =
+            "VPN отключён";
+
+        document.getElementById("connectionTitle").textContent =
+            "Защищённое соединение";
+
+        document.getElementById("connectionDescription").innerHTML =
+            "Подключитесь к VPN<br>для безопасного доступа в интернет";
+
+        document.getElementById("connectText").textContent =
+            "ПОДКЛЮЧИТЬ";
+
+        document.querySelector(".status-dot").style.background =
+            "#ff5364";
+
+        document.querySelector(".status-dot").style.boxShadow =
+            "0 0 10px rgba(255,83,100,.6)";
+
+        showMessage("VPN отключён");
     }
+}
 
 
-    // =========================
-    // ELEMENTS
-    // =========================
+// ===============================
+// ПОДПИСКА
+// ===============================
 
-    const connectButton =
-        document.getElementById("connectButton");
+function openPlans() {
 
-    const plansButton =
-        document.getElementById("plansButton");
+    showMessage(
+        "💳 ПОДПИСКА\n\n" +
+        "1 месяц — 150 ₽\n" +
+        "3 месяца — 399 ₽\n" +
+        "6 месяцев — 699 ₽\n" +
+        "12 месяцев — 1100 ₽\n\n" +
+        "Выберите тариф в следующей версии."
+    );
+}
 
-    const devicesButton =
-        document.getElementById("devicesButton");
 
-    const referralsButton =
-        document.getElementById("referralsButton");
+// ===============================
+// РЕФЕРАЛЫ
+// ===============================
 
-    const promoButton =
-        document.getElementById("promoButton");
+function openReferrals() {
 
-    const profileButton =
-        document.getElementById("profileButton");
+    const telegramId = user?.id || "не определён";
 
-    const plansNavButton =
-        document.getElementById("plansNavButton");
+    showMessage(
+        "👥 РЕФЕРАЛЫ\n\n" +
+        "Приглашайте друзей и получайте бонусы.\n\n" +
+        "Ваш Telegram ID:\n" +
+        telegramId
+    );
+}
 
-    const profileNavButton =
-        document.getElementById("profileNavButton");
 
-    const homeButton =
-        document.getElementById("homeButton");
+// ===============================
+// ПРОФИЛЬ
+// ===============================
 
-    const serverSelect =
-        document.getElementById("serverSelect");
+function openProfile() {
 
-
-    // =========================
-    // VPN
-    // =========================
-
-    let connected = false;
-
-
-    connectButton?.addEventListener("click", function () {
-
-        connected = !connected;
-
-
-        const statusCircle =
-            document.getElementById("statusCircle");
-
-        const statusTitle =
-            document.getElementById("statusTitle");
-
-        const statusSubtitle =
-            document.getElementById("statusSubtitle");
-
-        const statusSmall =
-            document.getElementById("statusSmall");
-
-        const statusDot =
-            document.getElementById("statusDot");
-
-
-        if (connected) {
-
-            statusCircle?.classList.add("connected");
-
-            connectButton.classList.add("connected");
-
-            connectButton.textContent =
-                "ОТКЛЮЧИТЬ";
-
-            statusTitle.textContent =
-                "VPN подключён";
-
-            statusSubtitle.textContent =
-                "Соединение защищено";
-
-            statusSmall.textContent =
-                "Подключено";
-
-            statusDot.style.background =
-                "#35d07f";
-
-        } else {
-
-            statusCircle?.classList.remove("connected");
-
-            connectButton.classList.remove("connected");
-
-            connectButton.textContent =
-                "ПОДКЛЮЧИТЬ";
-
-            statusTitle.textContent =
-                "VPN отключён";
-
-            statusSubtitle.textContent =
-                "Твой интернет не защищён";
-
-            statusSmall.textContent =
-                "Не подключено";
-
-            statusDot.style.background =
-                "#657080";
-
-        }
-
-    });
-
-
-    // =========================
-    // PLANS
-    // =========================
-
-    plansButton?.addEventListener("click", function () {
-
-        showMessage(
-            "💳 ТАРИФЫ\n\n" +
-            "7 дней — 99 ₽\n" +
-            "30 дней — 299 ₽\n" +
-            "90 дней — 799 ₽"
-        );
-
-    });
-
-
-    plansNavButton?.addEventListener("click", function () {
-
-        showMessage(
-            "💳 ТАРИФЫ\n\n" +
-            "7 дней — 99 ₽\n" +
-            "30 дней — 299 ₽\n" +
-            "90 дней — 799 ₽"
-        );
-
-    });
-
-
-    // =========================
-    // DEVICES
-    // =========================
-
-    devicesButton?.addEventListener("click", function () {
-
-        showMessage(
-            "📱 УСТРОЙСТВА\n\n" +
-            "Подключено: 0 / 3"
-        );
-
-    });
-
-
-    // =========================
-    // REFERRALS
-    // =========================
-
-    referralsButton?.addEventListener("click", function () {
-
-        showMessage(
-            "🎁 РЕФЕРАЛЫ\n\n" +
-            "Приглашай друзей и получай скидку."
-        );
-
-    });
-
-
-    // =========================
-    // PROMO
-    // =========================
-
-    promoButton?.addEventListener("click", function () {
-
-        showMessage(
-            "🎟 ПРОМОКОД\n\n" +
-            "Функция промокодов будет добавлена позже."
-        );
-
-    });
-
-
-    // =========================
-    // PROFILE
-    // =========================
-
-    function openProfile() {
-
-        const user =
-            tg?.initDataUnsafe?.user;
-
-
-        if (!user) {
-
-            showMessage(
-                "👤 ПРОФИЛЬ\n\n" +
-                "Данные Telegram недоступны."
-            );
-
-            return;
-        }
-
-
-        const name =
-            user.first_name || "Пользователь";
-
-
-        const username =
-            user.username
-                ? "@" + user.username
-                : "—";
-
+    if (!user) {
 
         showMessage(
             "👤 ПРОФИЛЬ\n\n" +
-            "Имя: " +
-            name +
-            "\n\n" +
-            "Username: " +
-            username +
-            "\n\n" +
-            "ID: " +
-            user.id
+            "Telegram-пользователь не определён."
         );
 
+        return;
     }
 
+    const name =
+        user.first_name ||
+        user.username ||
+        "Пользователь";
 
-    profileButton?.addEventListener(
-        "click",
-        openProfile
+    const username =
+        user.username
+            ? "@" + user.username
+            : "не указан";
+
+    showMessage(
+        "👤 ПРОФИЛЬ\n\n" +
+        "Имя: " + name + "\n" +
+        "Username: " + username + "\n" +
+        "ID: " + user.id
     );
+}
 
 
-    profileNavButton?.addEventListener(
-        "click",
-        openProfile
+// ===============================
+// УСТРОЙСТВА
+// ===============================
+
+function openDevices() {
+
+    showMessage(
+        "📱 УСТРОЙСТВА\n\n" +
+        "Пока подключённых устройств нет.\n\n" +
+        "После подключения WireGuard\n" +
+        "здесь появится список устройств."
     );
+}
 
 
-    // =========================
-    // HOME
-    // =========================
+// ===============================
+// ПРИ ЗАПУСКЕ
+// ===============================
 
-    homeButton?.addEventListener("click", function () {
+console.log("NEXUS VPN Mini App запущен");
 
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
+console.log("Telegram user:", user);
 
-    });
-
-
-    // =========================
-    // SERVERS
-    // =========================
-
-    serverSelect?.addEventListener("change", function () {
-
-        const serverName =
-            document.getElementById("serverName");
-
-        const serverPing =
-            document.getElementById("serverPing");
-
-
-        if (!serverName || !serverPing) {
-            return;
-        }
-
-
-        if (serverSelect.value === "germany") {
-
-            serverName.textContent =
-                "🇩🇪 Германия";
-
-            serverPing.textContent =
-                "38 ms";
-
-        }
-
-
-        if (serverSelect.value === "netherlands") {
-
-            serverName.textContent =
-                "🇳🇱 Нидерланды";
-
-            serverPing.textContent =
-                "42 ms";
-
-        }
-
-
-        if (serverSelect.value === "finland") {
-
-            serverName.textContent =
-                "🇫🇮 Финляндия";
-
-            serverPing.textContent =
-                "51 ms";
-
-        }
-
-    });
-
-
-    console.log("Mountain VPN: APP READY");
-
-});
+console.log("API:", API_URL);
 ```
