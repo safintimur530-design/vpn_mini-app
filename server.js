@@ -438,26 +438,30 @@ app.get("/api/referrals", auth, (req, res) => {
 // ================================
 
 const PLANS = {
-
-    week: {
-        name: "7 дней",
-        price: 199,
-        days: 7
-    },
-
     month: {
-        name: "30 дней",
-        price: 499,
+        name: "1 месяц",
+        price: 150,
         days: 30
     },
 
     three_months: {
-        name: "90 дней",
-        price: 1199,
+        name: "3 месяца",
+        price: 399,
         days: 90
+    },
+
+    six_months: {
+        name: "6 месяцев",
+        price: 699,
+        days: 180
+    },
+
+    year: {
+        name: "12 месяцев",
+        price: 1100,
+        days: 365
     }
 };
-
 // ================================
 // ПОЛУЧИТЬ ТАРИФЫ
 // ================================
